@@ -4,6 +4,7 @@ facter (1.5.4-0.1) unstable; urgency=low
   * Switch maintainer to pkg-puppet-devel list
   * Modify uploaders
   * Update watch file regexp to exclude release canditate tarballs
+  * Use upstream install.rb script to build rather than copying manually
 
  -- Nigel Kersten <nigelk@explanatorygap.net>  Thu, 09 Apr 2009 09:36:39 -0700
 
