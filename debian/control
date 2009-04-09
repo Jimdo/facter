@@ -1,0 +1,20 @@
+Source: facter
+Section: admin
+Priority: optional
+Maintainer: Jamie Wilkinson <jaq@debian.org>
+Uploaders: Jamie Wilkinson <jaq@debian.org>, Matthew Palmer <mpalmer@debian.org>
+Build-Depends: debhelper (>= 4.0.0), ruby (>= 1.8)
+Standards-Version: 3.8.0
+
+Package: facter
+Architecture: all
+Depends: ruby (>= 1.8), net-tools, host | bind9-host
+Description: a library for retrieving facts from operating systems
+ A cross-platform Ruby library for retrieving facts from operating systems.
+ Supports multiple resolution mechanisms, any of which can be restricted to
+ working only on certain operating systems or environments. Facter is
+ especially useful for retrieving things like operating system names, IP
+ addresses, MAC addresses, and SSH keys.
+ .
+ It is easy to extend Facter to include your own custom facts or to include
+ additional mechanisms for retrieving facts.
