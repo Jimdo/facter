@@ -45,9 +45,10 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 
-	# Add here commands to install the package into debian/facter.
-	cp bin/facter $(CURDIR)/debian/facter/usr/bin
-	cp -a lib/facter lib/facter.rb $(CURDIR)/debian/facter/usr/lib/ruby/1.8
+	$(CURDIR)/install.rb --destdir=$(CURDIR)/debian/facter/ \
+                --bindir=/usr/bin \
+                --sbindir=/usr/sbin \
+                --sitelibdir=/usr/lib/ruby/1.8
 
 # Build architecture-dependent files here.
 binary-arch: build install
