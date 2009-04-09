@@ -1,4 +1,4 @@
-facter (1.5.4-0.1) unstable; urgency=low
+facter (1.5.4-1) unstable; urgency=low
 
   * New upstream release
   * Switch maintainer to pkg-puppet-devel list
