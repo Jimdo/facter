@@ -3,7 +3,7 @@ Section: admin
 Priority: optional
 Maintainer: Puppet Package Maintainers <pkg-puppet-devel@lists.alioth.debian.org>
 Uploaders: Andrew Pollock <apollock@debian.org>, Nigel Kersten <nigelk@explanatorygap.net>
-Build-Depends: debhelper (>= 4.0.0), ruby (>= 1.8)
+Build-Depends: debhelper (>= 4.0.0), ruby (>= 1.8), libopenssl-ruby
 Standards-Version: 3.8.0
 
 Package: facter
