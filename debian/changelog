@@ -11,7 +11,7 @@ facter (1.5.4-1) unstable; urgency=low
   * debian/control: add libopenssl-ruby to build dependencies
   * debian/control: bump Standards-Version (no changes)
   * debian/compat: increase to 5
-  * debian/control: add ${misc:Depends} to dependencies
+  * debian/control: add pciutils and ${misc:Depends} to dependencies
 
  -- Andrew Pollock <apollock@debian.org>  Mon, 13 Apr 2009 15:20:21 -0700
 
