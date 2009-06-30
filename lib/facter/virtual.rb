@@ -4,48 +4,67 @@ Facter.add("virtual") do
     result = "physical"
 
     setcode do
-        if FileTest.exists?("/proc/user_beancounters")
-            # openvz. can be hardware node or virtual environment
-            # read the init process' status file, it has laxer permissions
-            # than /proc/user_beancounters (so this won't fail as non-root)
-            txt = File.read("/proc/1/status")
-            if txt =~ /^envID:[[:blank:]]+0$/mi
+    require 'thread'
+
+        if FileTest.exists?("/sbin/zonename")
+            z = %x{"/sbin/zonename"}.chomp
+            if z != 'global'
+                result = 'zone' 
+            end
+        end
+
+        if FileTest.exists?("/proc/vz/veinfo")
+            if FileTest.exists?("/proc/vz/version")
                 result = "openvzhn"
             else
                 result = "openvzve"
             end
         end
 
-        if FileTest.exists?("/proc/xen/capabilities") && FileTest.readable?("/proc/xen/capabilities")
-            txt = File.read("/proc/xen/capabilities")
-            if txt =~ /control_d/i
-                result = "xen0"
-            else
-                result = "xenu"
+        if FileTest.exists?("/proc/self/status")
+            txt = File.read("/proc/self/status")
+            if txt =~ /^(s_context|VxID):[[:blank:]]*[1-9]/
+                result = "vserver"
             end
         end
 
+        if FileTest.exists?("/proc/virtual")
+            result = "vserver_host"
+        end
+
+        # new Xen domains have this in dom0 not domu :(
+        if FileTest.exists?("/proc/sys/xen/independent_wallclock")
+            result = "xenu" 
+        end
+        if FileTest.exists?("/sys/bus/xen")
+            result = "xenu" 
+        end
+        
+        if FileTest.exists?("/proc/xen/capabilities")
+            txt = File.read("/proc/xen/capabilities")
+            if txt =~ /control_d/i
+                result = "xen0" 
+            end
+        end
+ 
         if result == "physical"
-            path = %x{which lspci 2> /dev/null}.chomp
-            if path !~ /no lspci/
-                output = %x{#{path}}
-                output.each do |p|
+            output = Facter::Util::Resolution.exec('lspci')
+            if not output.nil?
+                output.each_line do |p|
                     # --- look for the vmware video card to determine if it is virtual => vmware.
                     # ---     00:0f.0 VGA compatible controller: VMware Inc [VMware SVGA II] PCI Display Adapter
                     result = "vmware" if p =~ /VM[wW]are/
                 end
             else
-                path = %x{which dmidecode 2> /dev/null}.chomp
-                if path !~ /no dmidecode/
-                    output = %x{#{path}}
-                    output.each do |pd|
+                output = Facter::Util::Resolution.exec('dmidecode')
+                if not output.nil?
+                    output.each_line do |pd|
                         result = "vmware" if pd =~ /VMware|Parallels/
                     end
                 else
-                    path = %x{which prtdiag 2> /dev/null}.chomp
-                    if path !~ /no prtdiag/
-                        output = %x{#{path}}
-                        output.each do |pd|
+                    output = Facter::Util::Resolution.exec('prtdiag')
+                    if not output.nil?
+                        output.each_line do |pd|
                             result = "vmware" if pd =~ /VMware|Parallels/
                         end
                     end
@@ -58,18 +77,19 @@ Facter.add("virtual") do
             result = "vmware_server"
         end
 
-        mountexists = system "which mount > /dev/null 2>&1"
-        if $?.exitstatus == 0
-            output = %x{mount}
-            output.each do |p|
-                result = "vserver" if p =~ /\/dev\/hdv1/
-            end
-        end
-
-        if FileTest.directory?('/proc/virtual')
-            result = "vserver_host"
-        end
-
         result
+    end
+end
+  
+Facter.add("is_virtual") do
+    confine :kernel => %w{Linux FreeBSD OpenBSD SunOS}
+
+    setcode do
+        case Facter.value(:virtual)
+        when "xenu", "openvzve", "vmware" 
+            true
+        else 
+            false
+        end
     end
 end

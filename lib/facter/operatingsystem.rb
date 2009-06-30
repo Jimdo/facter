@@ -20,12 +20,16 @@ Facter.add(:operatingsystem) do
             "Mandriva"
         elsif FileTest.exists?("/etc/mandrake-release")
             "Mandrake"
-	elsif FileTest.exists?("/etc/arch-release")
-	    "Archlinux"
+        elsif FileTest.exists?("/etc/arch-release")
+            "Archlinux"
         elsif FileTest.exists?("/etc/enterprise-release")
-            "OEL"
-        elsif FileTest.exists?("/etc/ovs-release")
-            "OVS"
+            if FileTest.exists?("/etc/ovs-release")
+                "OVS"
+            else
+                "OEL"
+            end
+        elsif FileTest.exists?("/etc/arch-release")
+            "Arch"
         elsif FileTest.exists?("/etc/redhat-release")
             txt = File.read("/etc/redhat-release")
             if txt =~ /centos/i
@@ -37,8 +41,10 @@ Facter.add(:operatingsystem) do
             txt = File.read("/etc/SuSE-release")
             if txt =~ /^SUSE LINUX Enterprise Server/i
                 "SLES"
-	    elsif txt =~ /^openSUSE/i
-		"OpenSuSE"
+            elsif txt =~ /^SUSE LINUX Enterprise Desktop/i
+                "SLED"
+            elsif txt =~ /^openSUSE/i
+                "OpenSuSE"
             else
                 "SuSE"
             end

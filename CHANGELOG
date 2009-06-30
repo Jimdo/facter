@@ -1,15 +1,73 @@
+1.5.6:
+    Bug #2303: Add executable facter in spec
+    
+    Bug #2307: undefined local variable or method `zone'
+
+1.5.5:
+    Bug #2291 (Closed): Fix operatingsystemrelease for CentOS < 5
+
+    Bug #2278 (Closed): Virtual fact incorrect on Solaris sparc
+
+    Cleaned up Rakefile and removed requirement for Reductive Labs build library
+
+    Fixed #2131 (Closed): Facter doesn't populate lsbmajdistrelease on OEL
+
+    Fixed #2214 (Closed): Identify Oracle VM properly
+
+    Fixed #2231: ipaddress_pcn0 fact no longer exists on Solaris systems
+
+    Fixed #2236 (Closed): macaddress fact uses each_line on arrays
+
+    Fixed #1918 - facter --puppet doesn't work
+
+    Fixed #2011 - virtual fact reports always vserver_host if /proc/virtual
+
+    Fixed #2021 - Returning boolean not always possible
+
+    Fixed #2132 - Support for named interfaces under Linux
+
+    Fixed #1327 - Added SELinux facts
+
+    Fixed #2119 - Added support for non-global Solaris 10 zones
+
+    Fixed #2080 - IPAddress resolutions should be reordered
+
+    Fixed #2078 - ip.rb errors command not found
+
+    Fixed #2058 - Redirecting stderr doesn't work on all systems
+
+    Fixed #2081 - Fixed interfaces fact for vlan subinterfaces
+
+    Fixed #2063 - added kernelmajversion fact
+
+    Fixed #2055 - SunoS Interface error
+
+    Fixed #2044 - fixed virtual fact
+
+    Fixed lib install permissions
+
+    Fixed #2040 - Facter should provide a macosx_productversion_major fact
+
+    Fixed #2003 - Added is_virtual fact
+
+    Fixed #2035 - Missing brace for OSX preflight
+ 
+    Added EC2 facts
+  
+    Fixed #2032 - file.open hanging on /proc/uptime on some platform
+ 
 1.5.4:
     Fixed #1966 - Added physicalprocessorcount fact
 
     Fixed #1761 - changes to Solaris facts:
        operatingsystemrelease == kernel release or uname -r
-       kernelrelease == uname -r 
+       kernelrelease == uname -r
        kernelversion == uname -v
 
     Added support for Oracle VM Server to operatingsystem
     and operatingsystemrelease
 
-    Added support for Oracle Enterprise Linux to operatingsystem 
+    Added support for Oracle Enterprise Linux to operatingsystem
     and operatingsystemrelease
 
     Fixed #1927 - failing facts don't kill Facter
@@ -42,19 +100,19 @@
 
     Added ci namespace and Rake tasks
 
-    Fixed #1650 - OS X package creation script should be more selective 
+    Fixed #1650 - OS X package creation script should be more selective
     about cleaning out prior versions
 
     Added Ubuntu to a variety of confines
 
     Fixed #1619 - Applying patch by seanmil, adding support for SLES.
-    
-    Fixed #1634 - Update virtual fact to differentiate OpenVZ 
+
+    Fixed #1634 - Update virtual fact to differentiate OpenVZ
     hardware nodes and virtual environments
 
     Fixed #1509 - Fixed version recognition for SLES.
 
-    Fixes #1582 - Fix MAC address reporting for Linux bonding 
+    Fixes #1582 - Fix MAC address reporting for Linux bonding
     slave interfaces
 
     Fixed #1575 - CentOS fix for Facter SPEC file
@@ -110,8 +168,8 @@
 
     Fixes #1467 - macaddress not set on Ubuntu
 
-    Enabled a number of Windows facts - operating system, domain, ipaddress, macaddress, 
-    kernel, ipconfig and others 
+    Enabled a number of Windows facts - operating system, domain, ipaddress, macaddress,
+    kernel, ipconfig and others
 
 1.5.0:
     Fixed Rakefile to include additional files including tests et al
@@ -140,7 +198,7 @@
 
     Add lsbmajdistrelease fact for CentOS and Red Hat
 
-    Updated Red Hat spec file for new version 
+    Updated Red Hat spec file for new version
     The 'facter' executable now has an option (-p|--puppet) for loading the
     Puppet libraries, which gives it access to Puppet's facts.
 
@@ -152,22 +210,22 @@
     Significantly refactored Facter's internals, including creating tests
     for all internal classes.
 
-    A netmask fact has been added closing ticket #46.  It only returns the 
-    netmask of the primary interface (in the same behaviour as the ipaddress 
+    A netmask fact has been added closing ticket #46.  It only returns the
+    netmask of the primary interface (in the same behaviour as the ipaddress
     and macaddress facts).
 
-    Facts to return multiple interfaces on a host have also been updated.  
-    If you have multiple interfaces on Linux, *BSD, or Solaris/SunOS you will 
-    now get facts for each interface's IP address, MAC address and netmask.  
+    Facts to return multiple interfaces on a host have also been updated.
+    If you have multiple interfaces on Linux, *BSD, or Solaris/SunOS you will
+    now get facts for each interface's IP address, MAC address and netmask.
     The facts will be structured like:
       ipaddress_int = 10.0.0.x
       macaddress_int = xx:xx:xx:xx
       netmask_int = 255.255.255.0
 
-    Facter now identifies Ubuntu hosts and their releases using the 
+    Facter now identifies Ubuntu hosts and their releases using the
     operatingsystem and operatingsystemrelease facts.
 
-    The Debian operatingsystemrelease fact now correctly returns the current 
+    The Debian operatingsystemrelease fact now correctly returns the current
     Debian release.
 
     Fixed ticket #48 - ioperatingsystem and operatingsystemrelease for CentOS
@@ -181,16 +239,16 @@
 
     Fixed ticket #45
 
-    Added netmask.rb closing ticket #46    
+    Added netmask.rb closing ticket #46
 
 1.3.8:
     Fixed Rdoc::usage bug on CentOS 5 - closed Puppet #753 and Facter #40
 
-    Added support to return multiple interfaces and their IP addresses and 
-    MAC addressess as facts. Returns interface_interfacename and 
-    macaddress_interfacename.  Existing ipaddress and macaddress facts are 
+    Added support to return multiple interfaces and their IP addresses and
+    MAC addressess as facts. Returns interface_interfacename and
+    macaddress_interfacename.  Existing ipaddress and macaddress facts are
     unchanged and still returned.  Currently Linux only.  Closes #6.
- 
+
     Added macaddress fact support for FreeBSD and OpenBSD - closes #37
 
     Added hardwareisa support for *BSD platforms - closed #38
@@ -284,4 +342,4 @@
     adding new fact resolution mechanisms at run-time.
 
 1.0b1:
-	Initial release.
+    Initial release.

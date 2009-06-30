@@ -1,69 +1,75 @@
 # Rakefile for facter
 
-$LOAD_PATH << File.join(File.dirname(__FILE__), 'tasks')
+$: << File.expand_path('lib')
 
-begin 
-    require 'rake/reductive'
-rescue LoadError
-    $stderr.puts "You must have the Reductive build library in your RUBYLIB."
-    exit(14)
+require './lib/facter.rb'
+require 'rake'
+require 'rake/packagetask'
+require 'rake/gempackagetask'
+
+FILES = FileList[
+    '[A-Z]*',
+    'install.rb',
+    'bin/**/*',
+    'lib/**/*',
+    'conf/**/*',
+    'etc/**/*',
+    'spec/**/*'
+]
+
+spec = Gem::Specification.new do |spec|
+    spec.platform = Gem::Platform::RUBY
+    spec.name = 'facter'
+    spec.files = FILES.to_a
+    spec.executables = %w{facter}
+    spec.version = Facter::FACTERVERSION
+    spec.summary = 'Facter, a system inventory tool'
+    spec.author = 'Reductive Labs'
+    spec.email = 'puppet@reductivelabs.com'
+    spec.homepage = 'http://reductivelabs.com'
+    spec.rubyforge_project = 'facter'
+    spec.has_rdoc = true
+    spec.rdoc_options <<
+        '--title' <<  'Facter - System Inventory Tool' <<
+        '--main' << 'README' <<
+        '--line-numbers'
 end
 
-project = Rake::RedLabProject.new("facter") do |p|
-    p.summary = "Facter collects Operating system facts."
-    p.description = <<-EOF
-      Facter is a module for collecting simple facts about a host 
-      Operating system.
-    EOF
-
-    p.filelist = [
-        'install.rb',
-        '[A-Z]*',
-        'bin/**/*', 
-        'lib/facter.rb',
-        'lib/**/*.rb', 
-        'test/**/*.rb',
-        'spec/**/*',
-        'conf/**/*',
-        'documentation/**/*',
-        'etc/*'
-    ]
-
+Rake::PackageTask.new("facter", Facter::FACTERVERSION) do |pkg|
+    pkg.package_dir = 'pkg'
+    pkg.need_tar_gz = true
+    pkg.package_files = FILES.to_a
 end
 
-project.mkgemtask do |gem|
-    gem.require_path = 'lib'                         # Use these for libraries.
-
-    gem.bindir = "bin"                               # Use these for applications.
-    gem.executables = ["facter"]
-    gem.default_executable = "facter"
-
-    gem.author = "Luke Kanies"
+Rake::GemPackageTask.new(spec) do |pkg|
 end
 
-task :archive do
-    raise ArgumentError, "You must specify the archive name by setting ARCHIVE; e.g., ARCHIVE=1.5.1rc1" unless archive = ENV["ARCHIVE"]
-
-    sh "git archive --format=tar  --prefix=facter-#{archive}/ HEAD | gzip -c > facter-#{archive}.tgz"
+desc "Run the specs under spec/"
+task :spec do
+    require 'spec'
+    require 'spec/rake/spectask'
+    # require 'rcov'
+    Spec::Rake::SpecTask.new do |t| 
+        t.spec_opts = ['--format','s', '--loadby','mtime'] 
+        t.spec_files = FileList['spec/**/*.rb']
+    end 
 end
 
-namespace :ci do
-
-  desc "Run the CI prep tasks"
-  task :prep do
+desc "Prep CI RSpec tests"
+task :ci_prep do
     require 'rubygems'
-    gem 'ci_reporter'
-    require 'ci/reporter/rake/rspec'
-    require 'ci/reporter/rake/test_unit'
-    ENV['CI_REPORTS'] = 'results'
-  end
-
-  desc "Run CI RSpec tests"
-  task :spec => [:prep, 'ci:setup:rspec'] do
-     sh "cd spec; rake all; exit 0"
-  end
-
+    begin
+        gem 'ci_reporter'
+        require 'ci/reporter/rake/rspec'
+        require 'ci/reporter/rake/test_unit'
+        ENV['CI_REPORTS'] = 'results'
+    rescue LoadError 
+       puts 'Missing ci_reporter gem. You must have the ci_reporter gem installed to run the CI spec tests'
+    end
 end
+
+desc "Run the CI RSpec tests"
+task :ci_spec => [:ci_prep, 'ci:setup:rpsec', :spec]
 
 desc "Send patch information to the puppet-dev list"
 task :mail_patches do
@@ -75,7 +81,7 @@ task :mail_patches do
         raise "Could not get branch from 'git status'"
     end
     branch = $1
-    
+
     unless branch =~ %r{^([^\/]+)/([^\/]+)/([^\/]+)$}
         raise "Branch name does not follow <type>/<parent>/<name> model; cannot autodetect parent branch"
     end
@@ -83,7 +89,7 @@ task :mail_patches do
     type, parent, name = $1, $2, $3
 
     # Create all of the patches
-    sh "git format-patch -C -M -s -n #{parent}..HEAD"
+    sh "git format-patch -C -M -s -n --subject-prefix='PATCH/facter' #{parent}..HEAD"
 
     # And then mail them out.
 
@@ -95,7 +101,7 @@ task :mail_patches do
     end
 
     # Now send the mail.
-    sh "git send-email #{compose} --no-chain-reply-to --no-signed-off-by-cc --suppress-from --no-thread --to puppet-dev@googlegroups.com 00*.patch"
+    sh "git send-email #{compose} --no-signed-off-by-cc --suppress-from --to puppet-dev@googlegroups.com 00*.patch"
 
     # Finally, clean up the patches
     sh "rm 00*.patch"

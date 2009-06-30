@@ -5,20 +5,20 @@ module Facter::Util::IP
     # a given platform or set of platforms.
     REGEX_MAP = {
         :linux => {
-            :ipaddress => /inet addr:([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/,
-            :macaddress  => /(?:ether|HWaddr)\s+(\w{1,2}:\w{1,2}:\w{1,2}:\w{1,2}:\w{1,2}:\w{1,2})/,
-            :netmask => /Mask:([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/
+            :ipaddress  => /inet addr:([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/,
+            :macaddress => /(?:ether|HWaddr)\s+(\w{1,2}:\w{1,2}:\w{1,2}:\w{1,2}:\w{1,2}:\w{1,2})/,
+            :netmask    => /Mask:([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/
         },
-        :bsd => {
-            :aliases => [:openbsd, :netbsd, :freebsd, :darwin],
-            :ipaddress => /inet\s+([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/,
-            :macaddress  => /(?:ether|lladdr)\s+(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)/,
-            :netmask => /netmask\s+0x(\w{8})/
+        :bsd   => {
+            :aliases    => [:openbsd, :netbsd, :freebsd, :darwin],
+            :ipaddress  => /inet\s+([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/,
+            :macaddress => /(?:ether|lladdr)\s+(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)/,
+            :netmask    => /netmask\s+0x(\w{8})/
         },
         :sunos => {
-            :addr => /inet\s+([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/,
-            :macaddress  => /(?:ether|lladdr)\s+(\w?\w:\w?\w:\w?\w:\w?\w:\w?\w:\w?\w)/,
-            :netmask => /netmask\s+(\w{8})/
+            :ipaddress => /inet\s+([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/,
+            :macaddress => /(?:ether|lladdr)\s+(\w?\w:\w?\w:\w?\w:\w?\w:\w?\w:\w?\w)/,
+            :netmask    => /netmask\s+(\w{8})/
         }
     }
 
@@ -45,17 +45,13 @@ module Facter::Util::IP
     end
 
     def self.get_interfaces
-        int = nil
+        return [] unless output = Facter::Util::IP.get_all_interface_output()
 
-        output =  Facter::Util::IP.get_all_interface_output()
-
-        # We get lots of warnings on platforms that don't get an output
-        # made.
-        if output
-            int = output.scan(/^\w+[.:]?\d+/)
-        else
-            []
-        end
+        # Our regex appears to be stupid, in that it leaves colons sitting
+        # at the end of interfaces.  So, we have to trim those trailing
+        # characters.  I tried making the regex better but supporting all
+        # platforms with a single regex is probably a bit too much.
+        output.scan(/^\w+[.:]?\d+[.:]?\d*[.:]?\w*/).collect { |i| i.sub(/:$/, '') }
     end
 
     def self.get_all_interface_output
@@ -124,7 +120,7 @@ module Facter::Util::IP
             output_int = get_single_interface_output(interface)
 
             if interface != /^lo[0:]?\d?/
-                output_int.each do |s|
+                output_int.each_line do |s|
                     if s =~ regex
                         value = $1
                         if label == 'netmask' && convert_from_hex?(kernel)

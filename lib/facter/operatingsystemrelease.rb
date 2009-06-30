@@ -53,8 +53,8 @@ end
 Facter.add(:operatingsystemrelease) do
     confine :operatingsystem => %w{CentOS}
     setcode do
-        centos_release = Facter::Util::Resolution.exec("sed -r -e 's/CentOS release //' -e 's/ \((Branch|Final)\)//' /etc/redhat-release")
-        if centos_release =~ /5/
+        centos_release = Facter::Util::Resolution.exec("sed -r -e 's/CentOS release //' -e 's/ \\((Branch|Final)\\)//' /etc/redhat-release")
+        if centos_release =~ /^5/
             release = Facter::Util::Resolution.exec('rpm -q --qf \'%{VERSION}.%{RELEASE}\' centos-release | cut -d. -f1,2')
         else
             release = centos_release
@@ -80,15 +80,15 @@ Facter.add(:operatingsystemrelease) do
 end
 
 Facter.add(:operatingsystemrelease) do
-    confine :operatingsystem => %w{SLES OpenSuSE}
+    confine :operatingsystem => %w{SLES SLED OpenSuSE}
     setcode do
         releasefile = Facter::Util::Resolution.exec('cat /etc/SuSE-release')
         if releasefile =~ /^VERSION\s*=\s*(\d+)/
             releasemajor = $1
             if releasefile =~ /^PATCHLEVEL\s*=\s*(\d+)/
                 releaseminor = $1
-	    elsif releasefile =~ /^VERSION\s=.*.(\d+)/
-		releaseminor = $1
+            elsif releasefile =~ /^VERSION\s=.*.(\d+)/
+                releaseminor = $1
             else
                 releaseminor = "0"
             end
