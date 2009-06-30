@@ -1,6 +1,11 @@
 facter (1.5.6-2) UNRELEASED; urgency=low
 
   * Added depends possibility on libopenssl-ruby1.9
+  * Switch from install.rb to using the standardized Debian ruby CDBS
+    classes to use setup.rb. This stops the munging of the shebang
+    to a specific ruby version, as facter works with both 1.8 and 1.9
+  * Install facter library dependencies in ruby version neutral
+    directory: /usr/lib/ruby/vendor_ruby
 
  -- Micah Anderson <micah@debian.org>  Tue, 30 Jun 2009 00:21:23 -0400
 
