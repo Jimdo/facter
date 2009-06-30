@@ -1,3 +1,9 @@
+facter (1.5.6-2) UNRELEASED; urgency=low
+
+  * Added depends possibility on libopenssl-ruby1.9
+
+ -- Micah Anderson <micah@debian.org>  Tue, 30 Jun 2009 00:21:23 -0400
+
 facter (1.5.6-1) unstable; urgency=low
 
   * New upsream release

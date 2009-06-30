@@ -8,7 +8,7 @@ Standards-Version: 3.8.2
 
 Package: facter
 Architecture: all
-Depends: ruby (>= 1.8), net-tools, host | bind9-host, pciutils, libopenssl-ruby1.8, ${misc:Depends}
+Depends: ruby (>= 1.8), net-tools, host | bind9-host, pciutils, libopenssl-ruby1.8 | libopenssl-ruby1.9, ${misc:Depends}
 Description: a library for retrieving facts from operating systems
  A cross-platform Ruby library for retrieving facts from operating systems.
  Supports multiple resolution mechanisms, any of which can be restricted to
