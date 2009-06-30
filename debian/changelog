@@ -1,4 +1,4 @@
-facter (1.5.6-2) UNRELEASED; urgency=low
+facter (1.5.6-2) unstable; urgency=low
 
   * Added depends possibility on libopenssl-ruby1.9
   * Switch from install.rb to using the standardized Debian ruby CDBS
@@ -6,6 +6,7 @@ facter (1.5.6-2) UNRELEASED; urgency=low
     to a specific ruby version, as facter works with both 1.8 and 1.9
   * Install facter library dependencies in ruby version neutral
     directory: /usr/lib/ruby/vendor_ruby
+  * Add depends on libsetup-ruby1.8, ruby-pkg-tools and cdbs
 
  -- Micah Anderson <micah@debian.org>  Tue, 30 Jun 2009 00:21:23 -0400
 
