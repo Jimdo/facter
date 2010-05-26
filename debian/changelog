@@ -6,6 +6,7 @@ facter (1.5.7-3) UNRELEASED; urgency=low
 
   [ Micah Anderson ]
   * debian/control: add Vcs-Git, Vcs-Browser, and Homepage fields
+  * debian/control: bump standards version: no changes
 
  -- Micah Anderson <micah@debian.org>  Wed, 26 May 2010 10:39:54 -0400
 
