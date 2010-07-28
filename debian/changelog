@@ -15,9 +15,11 @@ facter (1.5.7-3) UNRELEASED; urgency=low
     (Closes: #499869)
   * Add versioned dependency for ruby1.8 (Closes: #585867)
   * Cherry-pick domain/fqdn fact fix from upstream (Closes: #515591)
-  * debian/control: bump standards version, no changes
+  * debian/control: Bump standards version (again), no changes
+  * debian/control: Remove unused build dependency on "cdbs"
+  * debian/source/format: Use "3.0 (quilt)"
 
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Wed, 28 Jul 2010 23:30:38 +0200
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Wed, 28 Jul 2010 23:34:20 +0200
 
 facter (1.5.7-1) unstable; urgency=low
 
