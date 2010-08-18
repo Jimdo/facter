@@ -1,6 +1,6 @@
 module Facter::Util::Virtual
     def self.openvz?
-        FileTest.exists?("/proc/vz/veinfo")
+        FileTest.directory?("/proc/vz")
     end
 
     def self.openvz_type
@@ -13,6 +13,7 @@ module Facter::Util::Virtual
     end
 
     def self.zone?
+        return true if FileTest.directory?("/.SUNWnative")
         z = Facter::Util::Resolution.exec("/sbin/zonename")
         return false unless z
         return z.chomp != 'global'
@@ -40,4 +41,25 @@ module Facter::Util::Virtual
             FileTest.exists?(f)
         end
     end
+
+    def self.kvm?
+       txt = if FileTest.exists?("/proc/cpuinfo")
+           File.read("/proc/cpuinfo")
+       elsif Facter.value(:kernel)=="FreeBSD"
+           Facter::Util::Resolution.exec("/sbin/sysctl -n hw.model")
+       end
+       (txt =~ /QEMU Virtual CPU/) ? true : false
+    end
+
+    def self.kvm_type
+      # TODO Tell the difference between kvm and qemu
+      # Can't work out a way to do this at the moment that doesn't
+      # require a special binary
+      "kvm"
+    end
+
+    def self.jail?
+        Facter::Util::Resolution.exec("/sbin/sysctl -n security.jail.jailed") == "1"
+    end
+
 end

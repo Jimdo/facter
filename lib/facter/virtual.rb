@@ -25,13 +25,21 @@ Facter.add("virtual") do
             if FileTest.exists?("/sys/bus/xen")
                 result = "xenu"
             end
-        
+
             if FileTest.exists?("/proc/xen/capabilities")
-                txt = File.read("/proc/xen/capabilities")
+                txt = Facter::Util::Resolution.exec("cat /proc/xen/capabilities")
                 if txt =~ /control_d/i
                     result = "xen0"
                 end
             end
+        end
+
+        if Facter::Util::Virtual.kvm?
+            result = Facter::Util::Virtual.kvm_type()
+        end
+
+        if Facter.value(:kernel)=="FreeBSD"
+            result = "jail" if Facter::Util::Virtual.jail?
         end
 
         if result == "physical"
@@ -72,7 +80,7 @@ Facter.add("is_virtual") do
 
     setcode do
         case Facter.value(:virtual)
-        when "xenu", "openvzve", "vmware"
+        when "xenu", "openvzve", "vmware", "kvm", "vserver", "jail"
             true
         else 
             false

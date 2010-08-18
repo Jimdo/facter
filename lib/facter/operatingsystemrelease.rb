@@ -1,14 +1,16 @@
 Facter.add(:operatingsystemrelease) do
-    confine :operatingsystem => %w{CentOS Fedora oel ovs RedHat}
+    confine :operatingsystem => %w{CentOS Fedora oel ovs RedHat MeeGo}
     setcode do
         case Facter.value(:operatingsystem)
         when "CentOS", "RedHat"
             releasefile = "/etc/redhat-release"
         when "Fedora"
             releasefile = "/etc/fedora-release"
-        when "oel"
+        when "MeeGo"
+            releasefile = "/etc/meego-release"
+        when "OEL"
             releasefile = "/etc/enterprise-release"
-        when "ovs"
+        when "OVS"
             releasefile = "/etc/ovs-release"
         end
         File::open(releasefile, "r") do |f|
@@ -55,6 +57,16 @@ Facter.add(:operatingsystemrelease) do
             releasemajor + "." + releaseminor
         else
             "unknown"
+        end
+    end
+end
+
+Facter.add(:operatingsystemrelease) do
+    confine :operatingsystem => %w{Slackware}
+    setcode do
+        release = Facter::Util::Resolution.exec('cat /etc/slackware-version')
+        if release =~ /Slackware ([0-9.]+)/
+            $1
         end
     end
 end

@@ -27,7 +27,7 @@ module Facter
     include Comparable
     include Enumerable
 
-    FACTERVERSION = '1.5.7'
+    FACTERVERSION = '1.5.8'
     # = Facter
     # Functions as a hash of 'facts' you might care about about your
     # system, such as mac address, IP address, Video card, etc.
@@ -68,9 +68,13 @@ module Facter
         if string.nil?
             return
         end
-        if @@debug != 0
+        if self.debugging?
             puts GREEN + string + RESET
         end
+    end
+
+    def self.debugging?
+        @@debug != 0
     end
 
     # Return a fact object by name.  If you use this, you still have to call
@@ -170,6 +174,14 @@ module Facter
             end
         else
             @@debug = 0
+        end
+    end
+
+
+    def self.warn(msg)
+        if Facter.debugging? and msg and not msg.empty?
+            msg = [msg] unless msg.respond_to? :each
+            msg.each { |line| Kernel.warn line }
         end
     end
 

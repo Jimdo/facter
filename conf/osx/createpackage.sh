@@ -37,7 +37,7 @@ function find_installer() {
   elif [ -f "../${INSTALLRB}" ]; then
     installer="$(pwd)/../${INSTALLRB}"
   elif [ -f "../../${INSTALLRB}" ]; then
-    installer="$(pwd)/../${INSTALLRB}"
+    installer="$(pwd)/../../${INSTALLRB}"
   else
     installer=""
   fi
@@ -52,6 +52,17 @@ function install_facter() {
   cd "$facter_root"
   ./"${INSTALLRB}" --destdir="${pkgroot}" --bindir="${BINDIR}" --sitelibdir="${SITELIBDIR}"
   chown -R root:admin "${pkgroot}"
+}
+
+function install_docs() {
+  echo "Installing docs to ${pkgroot}"
+  docdir="${pkgroot}/usr/share/doc/facter" 
+  mkdir -p "${docdir}"
+  for docfile in ChangeLog COPYING LICENSE README README.rst TODO; do
+    install -m 0644 "${facter_root}/${docfile}" "${docdir}"
+  done
+  chown -R root:wheel "${docdir}"
+  chmod 0755 "${docdir}"
 }
 
 function get_facter_version() {
