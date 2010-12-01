@@ -1,4 +1,4 @@
-facter (1.5.8-1) UNRELEASED; urgency=low
+facter (1.5.8-1) experimental; urgency=low
 
   [Puppet Labs]
   * New upstream version
@@ -20,7 +20,7 @@ facter (1.5.8-1) UNRELEASED; urgency=low
   * debian/control: Remove unused build dependency on "cdbs"
   * debian/source/format: Use "3.0 (quilt)"
 
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Mon, 30 Aug 2010 12:14:07 +0200
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Wed, 01 Dec 2010 16:02:13 +0100
 
 facter (1.5.7-1) unstable; urgency=low
 

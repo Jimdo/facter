@@ -1,7 +1,7 @@
-facter (1.5.7-3) unstable; urgency=low
+facter (1.5.8-1) experimental; urgency=low
 
   When upgrading facter from 1.5.1 (the version in "lenny") or any previous
   version, a running puppet instance will stop working due to API changes in
   facter. If you have a running puppetd instance, it must be restarted.
 
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Fri, 25 Jun 2010 22:12:50 +0200
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Wed, 01 Dec 2010 16:05:08 +0100
