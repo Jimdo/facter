@@ -14,7 +14,7 @@ facter (1.5.8-1) experimental; urgency=low
     added a note in debian/NEWS about restarting puppet (Closes: #515726)
   * debian/NEWS: Update to warn of changes in facter API
     (Closes: #499869)
-  * Add versioned dependency for ruby1.8 (Closes: #585867)
+  * Add versioned dependency for ruby1.8 (Closes: #545867)
   * Cherry-pick domain/fqdn fact fix from upstream (Closes: #515591)
   * debian/control: Bump standards version (again), no changes
   * debian/control: Remove unused build dependency on "cdbs"
