@@ -5,6 +5,7 @@ facter (1.5.7-3) UNRELEASED; urgency=low
     added a note in debian/NEWS about restarting puppet (Closes: #515726)
   * Add versioned dependency for ruby1.8 (Closes: #585867)
   * debian/control: bump standards version: no changes
+  * debian/control: Remove unused build dependency on "cdbs"
 
   [ Micah Anderson ]
   * debian/control: add Vcs-Git, Vcs-Browser, and Homepage fields
