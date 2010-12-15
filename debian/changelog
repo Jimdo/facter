@@ -19,7 +19,7 @@ facter (1.5.7-2) unstable; urgency=low
     . fix Linux-Vserver of virtual fact [#3397]
     . add xendomains fact
 
- -- Micah Anderson <micah@debian.org>  Wed, 26 May 2010 10:39:54 -0400
+ -- Micah Anderson <micah@debian.org>  Wed, 15 Dec 2010 00:21:46 -0500
 
 facter (1.5.7-1) unstable; urgency=low
 
