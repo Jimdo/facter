@@ -1,6 +1,7 @@
 facter (1.5.7-3) unstable; urgency=low
 
   * Remove unnecessary alternate dependency on libopenssl-ruby1.9 
+  * Fix 1.5.7-2 changelog, correcting bug number for #545867
 
  -- Micah Anderson <micah@debian.org>  Fri, 17 Dec 2010 12:17:49 -0500
 
