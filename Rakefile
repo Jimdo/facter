@@ -3,8 +3,9 @@
 $: << File.expand_path('lib')
 $LOAD_PATH << File.join(File.dirname(__FILE__), 'tasks')
 
-require 'spec'
-require 'spec/rake/spectask'
+require 'rubygems'
+require 'rspec'
+require 'rspec/core/rake_task'
 begin
     require 'rcov'
 rescue LoadError
@@ -61,12 +62,14 @@ task :default do
     sh %{rake -T}
 end
 
-Spec::Rake::SpecTask.new(:spec) do |t|
-    t.spec_files = FileList['spec/**/*.rb']
+RSpec::Core::RakeTask.new do |t|
+    t.pattern ='spec/{unit,integration}/**/*_spec.rb'
+    t.fail_on_error = false
 end
 
-Spec::Rake::SpecTask.new('spec:rcov') do |t|
-    t.spec_files = FileList['spec/**/*.rb']
+RSpec::Core::RakeTask.new('spec:rcov') do |t|
+    t.pattern ='spec/{unit,integration}/**/*_spec.rb'
+    t.fail_on_error = false
     if defined?(Rcov)
         t.rcov = true
         t.rcov_opts = ['--exclude', 'spec/*,test/*,results/*,/usr/lib/*,/usr/local/lib/*,gems/*']

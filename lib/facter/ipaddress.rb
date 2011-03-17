@@ -19,7 +19,7 @@ Facter.add(:ipaddress) do
 end
 
 Facter.add(:ipaddress) do
-    confine :kernel => %w{FreeBSD OpenBSD}
+    confine :kernel => %w{FreeBSD OpenBSD Darwin}
     setcode do
         ip = nil
         output = %x{/sbin/ifconfig}
@@ -47,38 +47,7 @@ Facter.add(:ipaddress) do
         output.split(/^\S/).each { |str|
             if str =~ /inet ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/
                 tmp = $1
-                unless tmp =~ /^127\./
-                    ip = tmp
-                    break
-                end
-            end
-        }
-
-        ip
-    end
-end
-
-Facter.add(:ipaddress) do
-    confine :kernel => %w{darwin}
-    setcode do
-        ip = nil
-        iface = ""
-        output = %x{/usr/sbin/netstat -rn}
-        if output =~ /^default\s*\S*\s*\S*\s*\S*\s*\S*\s*(\S*).*/
-          iface = $1
-        else
-          warn "Could not find a default route. Using first non-loopback interface"
-        end
-        if(iface != "")
-          output = %x{/sbin/ifconfig #{iface}}
-        else
-          output = %x{/sbin/ifconfig}
-        end
-
-        output.split(/^\S/).each { |str|
-            if str =~ /inet ([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/
-                tmp = $1
-                unless tmp =~ /^127\./
+                unless tmp =~ /^127\./ or tmp == "0.0.0.0"
                     ip = tmp
                     break
                 end

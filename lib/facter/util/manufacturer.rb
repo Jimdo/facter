@@ -5,7 +5,7 @@ module Facter::Manufacturer
 
     def self.get_dmi_table()
         case Facter.value(:kernel)
-        when 'Linux'
+        when 'Linux', 'GNU/kFreeBSD'
             return nil unless FileTest.exists?("/usr/sbin/dmidecode")
 
             output=%x{/usr/sbin/dmidecode 2>/dev/null}
@@ -38,7 +38,7 @@ module Facter::Manufacturer
                         if line =~ /#{key}/ and line =~ /\n\s+#{value} (.+)\n/
                             result = $1.strip
                             Facter.add(facterkey) do
-                                confine :kernel => [ :linux, :freebsd, :netbsd, :sunos ]
+                                confine :kernel => [ :linux, :freebsd, :netbsd, :sunos, :"gnu/kfreebsd" ]
                                 setcode do
                                     result
                                 end
@@ -60,4 +60,41 @@ module Facter::Manufacturer
             end
         end
     end
+
+    def self.prtdiag_sparc_find_system_info()
+        # Parses prtdiag for a SPARC architecture string, won't work with Solaris x86
+        output = Facter::Util::Resolution.exec('/usr/sbin/prtdiag')
+
+        # System Configuration:  Sun Microsystems  sun4u Sun SPARC Enterprise M3000 Server
+        sysconfig = output.split("\n")[0]
+        if sysconfig =~ /^System Configuration:\s+(.+?)\s+(sun\d+\S+)\s+(.+)/ then
+            Facter.add('manufacturer') do
+                setcode do
+                    $1
+                end
+            end
+            Facter.add('productname') do
+                setcode do
+                    $3
+                end
+            end
+        end
+    end
+
+    def self.win32_find_system_info(name)
+        require 'win32ole'
+        value = ""
+        wmi = WIN32OLE.connect("winmgmts://")
+        name.each do |facterkey, win32key|
+            query = wmi.ExecQuery("select * from Win32_#{win32key.last}")
+            Facter.add(facterkey) do
+                confine :kernel => :windows
+                setcode do
+                    query.each { |x| value = x.__send__( (win32key.first).to_sym) }
+                    value
+                end
+            end
+        end
+    end
+
 end

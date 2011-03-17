@@ -7,7 +7,7 @@
 
 require 'thread'
 
-if Facter.value(:kernel) == "Linux"
+if ["Linux", "GNU/kFreeBSD"].include? Facter.value(:kernel)
     processor_num = -1
     processor_list = []
     Thread::exclusive do
@@ -17,12 +17,15 @@ if Facter.value(:kernel) == "Linux"
             elsif l =~ /model name\s+:\s+(.*)\s*$/
                 processor_list[processor_num] = $1 unless processor_num == -1
                 processor_num = -1
+            elsif l =~ /processor\s+(\d+):\s+(.*)/
+                processor_num = $1.to_i
+                processor_list[processor_num] = $2 unless processor_num == -1
             end
         end
     end
 
     Facter.add("ProcessorCount") do
-        confine :kernel => :linux
+        confine :kernel => [ :linux, :"gnu/kfreebsd" ]
         setcode do
             processor_list.length.to_s
         end
@@ -30,7 +33,7 @@ if Facter.value(:kernel) == "Linux"
 
     processor_list.each_with_index do |desc, i|
         Facter.add("Processor#{i}") do
-            confine :kernel => :linux
+            confine :kernel => [ :linux, :"gnu/kfreebsd" ]
             setcode do
                 desc
             end
@@ -80,9 +83,9 @@ if Facter.value(:kernel) == "OpenBSD"
             Facter::Util::Resolution.exec("uname -p")
         end
     end
-    
+
     Facter.add("ProcessorCount") do
-        confine :kernel => :openbsd 
+        confine :kernel => :openbsd
         setcode do
             Facter::Util::Resolution.exec("sysctl hw.ncpu | cut -d'=' -f2")
         end

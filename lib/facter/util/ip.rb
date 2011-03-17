@@ -6,17 +6,20 @@ module Facter::Util::IP
     REGEX_MAP = {
         :linux => {
             :ipaddress  => /inet addr:([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/,
+            :ipaddress6 => /inet6 addr: ((?![fe80|::1])(?>[0-9,a-f,A-F]*\:{1,2})+[0-9,a-f,A-F]{0,4})/,
             :macaddress => /(?:ether|HWaddr)\s+(\w{1,2}:\w{1,2}:\w{1,2}:\w{1,2}:\w{1,2}:\w{1,2})/,
             :netmask    => /Mask:([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/
         },
         :bsd   => {
-            :aliases    => [:openbsd, :netbsd, :freebsd, :darwin],
+            :aliases    => [:openbsd, :netbsd, :freebsd, :darwin, :"gnu/kfreebsd"],
             :ipaddress  => /inet\s+([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/,
-            :macaddress => /(?:ether|lladdr)\s+(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)/,
+            :ipaddress6 => /inet6 ((?![fe80|::1])(?>[0-9,a-f,A-F]*\:{1,2})+[0-9,a-f,A-F]{0,4})/,
+            :macaddress => /(?:ether|lladdr)\s+(\w?\w:\w?\w:\w?\w:\w?\w:\w?\w:\w?\w)/,
             :netmask    => /netmask\s+0x(\w{8})/
         },
         :sunos => {
             :ipaddress  => /inet\s+([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/,
+            :ipaddress6 => /inet6 ((?![fe80|::1])(?>[0-9,a-f,A-F]*\:{1,2})+[0-9,a-f,A-F]{0,4})/,
             :macaddress => /(?:ether|lladdr)\s+(\w?\w:\w?\w:\w?\w:\w?\w:\w?\w:\w?\w)/,
             :netmask    => /netmask\s+(\w{8})/
         },
@@ -33,7 +36,7 @@ module Facter::Util::IP
     end
 
     def self.convert_from_hex?(kernel)
-        kernels_to_convert = [:sunos, :openbsd, :netbsd, :freebsd, :darwin, :"hp-ux"]
+        kernels_to_convert = [:sunos, :openbsd, :netbsd, :freebsd, :darwin, :"hp-ux", :"gnu/kfreebsd"]
         kernels_to_convert.include?(kernel)
     end
 
@@ -56,17 +59,17 @@ module Facter::Util::IP
         # at the end of interfaces.  So, we have to trim those trailing
         # characters.  I tried making the regex better but supporting all
         # platforms with a single regex is probably a bit too much.
-        output.scan(/^[-\w]+[.:]?\d+[.:]?\d*[.:]?\w*/).collect { |i| i.sub(/:$/, '') }.uniq
+        output.scan(/^\S+/).collect { |i| i.sub(/:$/, '') }.uniq
     end
 
     def self.get_all_interface_output
         case Facter.value(:kernel)
-        when 'Linux', 'OpenBSD', 'NetBSD', 'FreeBSD', 'Darwin'
+        when 'Linux', 'OpenBSD', 'NetBSD', 'FreeBSD', 'Darwin', 'GNU/kFreeBSD'
             output = %x{/sbin/ifconfig -a}
         when 'SunOS'
             output = %x{/usr/sbin/ifconfig -a}
         when 'HP-UX'
-            output = %x{/bin/netstat -i}
+            output = %x{/bin/netstat -in | sed -e 1d}
         end
         output
     end
@@ -74,7 +77,7 @@ module Facter::Util::IP
     def self.get_single_interface_output(interface)
         output = ""
         case Facter.value(:kernel)
-        when 'Linux', 'OpenBSD', 'NetBSD', 'FreeBSD', 'Darwin'
+        when 'Linux', 'OpenBSD', 'NetBSD', 'FreeBSD', 'Darwin', 'GNU/kFreeBSD'
             output = %x{/sbin/ifconfig #{interface}}
         when 'SunOS'
             output = %x{/usr/sbin/ifconfig #{interface}}
@@ -138,15 +141,13 @@ module Facter::Util::IP
         else
             output_int = get_single_interface_output(interface)
 
-            if interface != /^lo[0:]?\d?/
-                output_int.each_line do |s|
-                    if s =~ regex
-                        value = $1
+            output_int.each_line do |s|
+                if s =~ regex
+                    value = $1
                         if label == 'netmask' && convert_from_hex?(kernel)
                             value = value.scan(/../).collect do |byte| byte.to_i(16) end.join('.')
                         end
-                        tmp1.push(value)
-                    end
+                    tmp1.push(value)
                 end
             end
 
@@ -155,13 +156,13 @@ module Facter::Util::IP
             end
         end
     end
-  
+
     def self.get_network_value(interface)
         require 'ipaddr'
 
         ipaddress = get_interface_value(interface, "ipaddress")
         netmask = get_interface_value(interface, "netmask")
-        
+
         if ipaddress && netmask
             ip = IPAddr.new(ipaddress, Socket::AF_INET)
             subnet = IPAddr.new(netmask, Socket::AF_INET)

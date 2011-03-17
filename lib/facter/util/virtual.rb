@@ -22,7 +22,7 @@ module Facter::Util::Virtual
     def self.vserver?
         return false unless FileTest.exists?("/proc/self/status")
         txt = File.read("/proc/self/status")
-        return true if txt =~ /^(s_context|VxID):[[:blank:]]*[1-9]/
+        return true if txt =~ /^(s_context|VxID):[[:blank:]]*[0-9]/
         return false
     end
 
@@ -59,7 +59,18 @@ module Facter::Util::Virtual
     end
 
     def self.jail?
-        Facter::Util::Resolution.exec("/sbin/sysctl -n security.jail.jailed") == "1"
+        path = case Facter.value(:kernel)
+            when "FreeBSD" then "/sbin"
+            when "GNU/kFreeBSD" then "/bin"
+        end
+        Facter::Util::Resolution.exec("#{path}/sysctl -n security.jail.jailed") == "1"
     end
 
+    def self.hpvm?
+        Facter::Util::Resolution.exec("/usr/bin/getconf MACHINE_MODEL").chomp =~ /Virtual Machine/
+    end
+
+   def self.zlinux?
+        "zlinux"
+   end
 end

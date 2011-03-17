@@ -7,12 +7,17 @@ $LOAD_PATH.unshift("#{dir}/../lib")
 
 require 'rubygems'
 require 'mocha'
-require 'spec'
+require 'rspec'
 require 'facter'
 
 # load any monkey-patches
 Dir["#{dir}/monkey_patches/*.rb"].map { |file| require file }
 
-Spec::Runner.configure do |config|
-    config.mock_with :mocha
+RSpec.configure do |config|
+  config.mock_with :mocha
+
+  # Ensure that we don't accidentally cache between test cases.
+  config.before :each do
+    Facter.clear
+  end
 end
