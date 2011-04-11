@@ -1,3 +1,17 @@
+1.5.9rc5
+========
+acf0bb2 Ensures that ARP facts are returned only on EC2 hosts
+
+1.5.9rc4
+========
+09b9f9b (#6795) Update tests to reflect changed exec
+
+1.5.9rc3
+========
+def3322 (#6795) xendomains: Ignore error output from xm list
+f39d487 (#6763) Use Facter::Util::Resolution.exec for arp
+3eb9410 arp: Cleanup indendation
+
 1.5.9rc2
 ========
 2fb8316 Clean up indentation, and alignment in macaddress_spec.rb
