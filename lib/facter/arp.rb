@@ -8,12 +8,12 @@ Facter.add(:arp) do
       arp = ""
       output.each_line do |s|
         if s =~ /^\S+\s\S+\s\S+\s(\S+)\s\S+\s\S+\s\S+$/
-          arp = $1
+          arp = $1.downcase
           break # stops on the first match
         end
       end
     end
-    EC2_ARP == arp ? arp : nil
+    "fe:ff:ff:ff:ff:ff" == arp ? arp : nil
   end
 end
 
@@ -22,7 +22,7 @@ Facter::Util::IP.get_interfaces.each do |interface|
     confine :kernel => :linux
     setcode do
       arp = Facter::Util::IP.get_arp_value(interface)
-      EC2_ARP == arp ? arp : nil
+      "fe:ff:ff:ff:ff:ff" == arp ? arp : nil
     end
   end
 end
