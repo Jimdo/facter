@@ -4,43 +4,24 @@
 # Additional work modelled on Ohai EC2 fact
 
 require 'open-uri'
-require 'socket'
+require 'timeout'
 
-EC2_ADDR = "169.254.169.254"
-EC2_METADATA_URL = "http://#{EC2_ADDR}/2008-02-01/meta-data"
-EC2_USERDATA_URL = "http://#{EC2_ADDR}/2008-02-01/user-data"
-
-def can_metadata_connect?(addr, port, timeout=2)
-  t = Socket.new(Socket::Constants::AF_INET, Socket::Constants::SOCK_STREAM, 0)
-  saddr = Socket.pack_sockaddr_in(port, addr)
-  connected = false
-
-  begin
-    t.connect_nonblock(saddr)
-  rescue Errno::EINPROGRESS
-    r,w,e = IO::select(nil,[t],nil,timeout)
-    if !w.nil?
-      connected = true
-    else
-      begin
-        t.connect_nonblock(saddr)
-      rescue Errno::EISCONN
-        t.close
-        connected = true
-      rescue SystemCallError
-      end
-    end
-  rescue SystemCallError
-  end
-  connected
+def can_connect?(wait_sec=2)
+  url = "http://169.254.169.254:80/"
+  Timeout::timeout(wait_sec) {open(url)}
+  return true
+  rescue Timeout::Error
+    return false
+  rescue
+    return false
 end
 
 def metadata(id = "")
-  open("#{EC2_METADATA_URL}/#{id||=''}").read.
+  open("http://169.254.169.254/2008-02-01/meta-data/#{id||=''}").read.
     split("\n").each do |o|
     key = "#{id}#{o.gsub(/\=.*$/, '/')}"
     if key[-1..-1] != '/'
-      value = open("#{EC2_METADATA_URL}/#{key}").read.
+      value = open("http://169.254.169.254/2008-02-01/meta-data/#{key}").read.
         split("\n")
       value = value.size>1 ? value : value.first
       symbol = "ec2_#{key.gsub(/\-|\//, '_')}".to_sym
@@ -52,31 +33,22 @@ def metadata(id = "")
 end
 
 def userdata()
-  # assumes the only expected error is the 404 if there's no user-data
   begin
-     value = OpenURI.open_uri("#{EC2_USERDATA_URL}/").read.split
+     value = OpenURI.open_uri("http://169.254.169.254/2008-02-01/user-data/").read.split
      Facter.add(:ec2_userdata) { setcode { value } }
   rescue OpenURI::HTTPError
   end
 end
 
 def has_euca_mac?
-  if Facter.value(:macaddress) =~ /^[dD]0:0[dD]:/
-    return true
-  else
-    return false
-  end
+  !!(Facter.value(:macaddress) =~ %r{^[dD]0:0[dD]:})
 end
 
 def has_ec2_arp?
-  if Facter.value(:arp) == 'fe:ff:ff:ff:ff:ff'
-    return true
-  else
-    return false
-  end
+  !!(Facter.value(:arp) == "fe:ff:ff:ff:ff:ff")
 end
 
-if (has_euca_mac? || has_ec2_arp?) && can_metadata_connect?(EC2_ADDR,80)
+if (has_euca_mac? || has_ec2_arp?) && can_connect?
   metadata
   userdata
 else

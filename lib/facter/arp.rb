@@ -1,22 +1,28 @@
 require 'facter/util/ip'
 
 Facter.add(:arp) do
-    confine :kernel => :linux
-      setcode do
-        arp = []
-        output = %x{/usr/sbin/arp -a}
-        output.each_line do |s|
-            arp.push($1) if s =~ /^\S+\s\S+\s\S+\s(\S+)\s\S+\s\S+\s\S+$/
+  confine :kernel => :linux
+  setcode do
+    output = Facter::Util::Resolution.exec('arp -a')
+    if not output.nil?
+      arp = ""
+      output.each_line do |s|
+        if s =~ /^\S+\s\S+\s\S+\s(\S+)\s\S+\s\S+\s\S+$/
+          arp = $1.downcase
+          break # stops on the first match
         end
-        arp[0]
       end
+    end
+    "fe:ff:ff:ff:ff:ff" == arp ? arp : nil
+  end
 end
 
 Facter::Util::IP.get_interfaces.each do |interface|
-    Facter.add("arp_" + Facter::Util::IP.alphafy(interface)) do
+  Facter.add("arp_" + Facter::Util::IP.alphafy(interface)) do
     confine :kernel => :linux
-       setcode do
-            Facter::Util::IP.get_arp_value(interface)
-       end
+    setcode do
+      arp = Facter::Util::IP.get_arp_value(interface)
+      "fe:ff:ff:ff:ff:ff" == arp ? arp : nil
     end
+  end
 end
