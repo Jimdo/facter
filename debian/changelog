@@ -1,8 +1,10 @@
-facter (1.5.9-1) UNRELEASED; urgency=low
+facter (1.5.9-1) unstable; urgency=low
 
   * New upstream release
+  * Rewrite package description a bit to please lintian
+  * Bump Standards-Version (no changes)
 
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Sun, 22 May 2011 11:27:50 +0200
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Sun, 22 May 2011 13:43:16 +0200
 
 facter (1.5.9~rc2-1) experimental; urgency=low
 
