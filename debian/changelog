@@ -1,3 +1,9 @@
+facter (1.5.9-1) UNRELEASED; urgency=low
+
+  * New upstream release
+
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Sun, 22 May 2011 11:27:50 +0200
+
 facter (1.5.9~rc2-1) experimental; urgency=low
 
   * New upstream release candidate (Closes: #549616, #590498)
