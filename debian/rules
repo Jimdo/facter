@@ -1,8 +1,8 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 
-export DH_VERBOSE=1
-export DH_RUBY_IGNORE_TESTS=all
+# export DH_VERBOSE=1
+# export DH_RUBY_IGNORE_TESTS=all
 
 %:
 	dh $@ --buildsystem=ruby --with ruby
