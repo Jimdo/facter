@@ -2,6 +2,7 @@
 # -*- makefile -*-
 
 export DH_VERBOSE=1
+export DH_RUBY_IGNORE_TESTS=all
 
 %:
-	dh $@
+	dh $@ --buildsystem=ruby --with ruby
