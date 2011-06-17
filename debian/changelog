@@ -1,8 +1,9 @@
 facter (1.6.0~rc1-1) UNRELEASED; urgency=low
 
   * New upstream release candidate
+  * Support multiple ruby versions
 
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Fri, 17 Jun 2011 18:15:22 +0200
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Sat, 18 Jun 2011 00:05:27 +0200
 
 facter (1.5.9~rc6-1) experimental; urgency=low
 
