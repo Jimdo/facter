@@ -2,6 +2,7 @@ facter (1.6.0~rc1-1) UNRELEASED; urgency=low
 
   * New upstream release candidate
   * Support multiple ruby versions
+  * Rewrite packaging using gem2deb as documented by the Debian Ruby team
 
  -- Stig Sandbeck Mathisen <ssm@debian.org>  Sat, 18 Jun 2011 00:05:27 +0200
 
