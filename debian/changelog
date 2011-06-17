@@ -1,10 +1,10 @@
-facter (1.6.0~rc1-1) UNRELEASED; urgency=low
+facter (1.6.0~rc1-1) experimental; urgency=low
 
   * New upstream release candidate
   * Support multiple ruby versions
   * Rewrite packaging using gem2deb as documented by the Debian Ruby team
 
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Sat, 18 Jun 2011 00:05:27 +0200
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Sat, 18 Jun 2011 00:20:40 +0200
 
 facter (1.5.9~rc6-1) experimental; urgency=low
 
