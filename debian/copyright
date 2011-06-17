@@ -7,6 +7,7 @@ License: Apache-2.0
 Files: install.rb
 Copyright: 2004 Austin Ziegler <ruby-install@halostatue.ca>
 License: GPL-2 or later
+  See /usr/share/common-licenses/GPL-2
 License: Ruby
   1. You may make and give away verbatim copies of the source form of the
      software without restriction, provided that you duplicate all of the
