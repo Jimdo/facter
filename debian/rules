@@ -1,75 +1,7 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 
-# Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
+export DH_VERBOSE=1
 
-INSTALL=install -Dp
-
-prefix := $(CURDIR)/debian/tmp
-bindir := $(prefix)/usr/bin
-sbindir := $(prefix)/usr/sbin
-libdir := $(prefix)/usr/lib
-localstatedir := $(prefix)/var
-rubylibdir := $(libdir)/ruby/1.8
-sysconfdir := $(prefix)/etc
-pkgconfdir := $(sysconfdir)/facter
-
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -O0
-else
-	CFLAGS += -O2
-endif
-
-configure: configure-stamp
-configure-stamp:
-	dh_testdir
-	touch configure-stamp
-
-
-build: build-stamp
-build-stamp: configure-stamp 
-	dh_testdir
-	touch build-stamp
-
-clean:
-	dh_testdir
-	dh_testroot
-	rm -f build-stamp configure-stamp
-	dh_clean 
-
-install: build
-	dh_testdir
-	dh_testroot
-	dh_clean -k 
-	dh_installdirs
-
-	$(CURDIR)/install.rb --destdir=debian/tmp --bindir=/usr/bin \
-          --sbindir=/usr/sbin --sitelibdir=/usr/lib/ruby/1.8
-        
-	# strip executable bit from all the non-executable files.
-	find debian/tmp/usr/lib/ruby/1.8 -type f -perm /u+x,g+x,o+x -exec chmod a-x {} \;
-	# fix the permissions on all of the directories
-	find debian/tmp/usr/lib/ruby/1.8 -type d -exec chmod 755 {} \;
-
-# Build architecture-dependent files here.
-binary-arch: build install
-
-# Build architecture-independent files here.
-binary-indep: build install
-	dh_testdir
-	dh_testroot
-	dh_install -i
-	dh_installchangelogs -i CHANGELOG
-	dh_installdocs -i
-	dh_installman
-	dh_compress -i
-	dh_fixperms -i
-	dh_installdeb -i
-	dh_shlibdeps -i
-	dh_gencontrol -i
-	dh_md5sums -i
-	dh_builddeb -i
-
-binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install configure
+%:
+	dh $@
