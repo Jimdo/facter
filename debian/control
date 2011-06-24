@@ -3,18 +3,19 @@ Section: admin
 Priority: optional
 Maintainer: Puppet Package Maintainers <pkg-puppet-devel@lists.alioth.debian.org>
 Uploaders: Andrew Pollock <apollock@debian.org>, Nigel Kersten <nigel@explanatorygap.net>, Micah Anderson <micah@debian.org>, Stig Sandbeck Mathisen <ssm@debian.org>
-Build-Depends: ruby-pkg-tools, libsetup-ruby1.8, debhelper (>= 5.0.0), ruby (>= 1.8), libopenssl-ruby
+Build-Depends: debhelper (>= 8), gem2deb (>= 0.2.4~)
 Standards-Version: 3.9.2
 Vcs-Git: git://git.debian.org/git/pkg-puppet/facter.git
 Vcs-Browser: http://git.debian.org/?p=pkg-puppet/facter.git
 Homepage: http://projects.puppetlabs.com/projects/facter
-
+XS-Ruby-Versions: all
 
 Package: facter
 Architecture: all
-Depends: ruby1.8 (>= 1.8.7.72-3lenny1), net-tools, bind9-host | host, libopenssl-ruby1.8 | libopenssl-ruby1.9, ${misc:Depends}
+XB-Ruby-Versions: ${ruby:Versions}
+Depends: ${misc:Depends}, ruby | ruby-interpreter, ruby-json, net-tools, bind9-host | host
 Recommends: pciutils
-Description: library for retrieving facts from operating systems
+Description: collect and display facts about the system
  A cross-platform Ruby library for retrieving facts from operating systems.
  Supports multiple resolution mechanisms, any of which can be restricted to
  working only on certain operating systems or environments. Facter is
