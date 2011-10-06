@@ -37,6 +37,8 @@ Facter.add(:operatingsystem) do
             "MeeGo"
         elsif FileTest.exists?("/etc/arch-release")
             "Archlinux"
+        elsif FileTest.exists?("/etc/oracle-release")
+            "OracleLinux"
         elsif FileTest.exists?("/etc/enterprise-release")
             if FileTest.exists?("/etc/ovs-release")
                 "OVS"
@@ -51,6 +53,8 @@ Facter.add(:operatingsystem) do
             txt = File.read("/etc/redhat-release")
             if txt =~ /centos/i
                 "CentOS"
+            elsif txt =~ /CERN/
+                "SLC"
             elsif txt =~ /scientific/i 
                 "Scientific"
             else
@@ -73,6 +77,8 @@ Facter.add(:operatingsystem) do
             "Slamd64"
         elsif FileTest.exists?("/etc/slackware-version")
             "Slackware"
+        elsif FileTest.exists?("/etc/alpine-release")
+            "Alpine"
         end
     end
 end
