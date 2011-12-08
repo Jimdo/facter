@@ -1,8 +1,9 @@
 facter (1.6.4-1) unstable; urgency=low
 
   * New upstream release
-  
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Thu, 08 Dec 2011 01:10:37 +0100
+  * Add dependency on dmidecode
+
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Thu, 08 Dec 2011 01:19:09 +0100
 
 facter (1.6.3-1) unstable; urgency=low
 
