@@ -13,8 +13,8 @@ XS-Ruby-Versions: all
 Package: facter
 Architecture: all
 XB-Ruby-Versions: ${ruby:Versions}
-Depends: ${misc:Depends}, ruby | ruby-interpreter, ruby-json, net-tools, bind9-host | host, dmidecode
-Recommends: pciutils
+Depends: ${misc:Depends}, ruby | ruby-interpreter, ruby-json, net-tools, bind9-host | host
+Recommends: pciutils, dmidecode
 Description: collect and display facts about the system
  A cross-platform Ruby library for retrieving facts from operating systems.
  Supports multiple resolution mechanisms, any of which can be restricted to
