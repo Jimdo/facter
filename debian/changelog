@@ -1,3 +1,9 @@
+facter (1.6.5-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Thu, 26 Jan 2012 11:11:13 +0100
+
 facter (1.6.4-2) unstable; urgency=low
 
   * Move dmidecode from Depends to Recommends (Closes: #651501)
