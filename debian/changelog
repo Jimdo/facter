@@ -1,3 +1,9 @@
+facter (1.6.8-1) UNRELEASED; urgency=low
+
+  * Imported Upstream version 1.6.8
+
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Tue, 24 Apr 2012 08:49:23 +0200
+
 facter (1.6.7-1) unstable; urgency=low
 
   * Imported Upstream version 1.6.7
