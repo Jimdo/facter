@@ -1,15 +1,47 @@
-Format: http://anonscm.debian.org/viewvc/dep/web/deps/dep5.mdwn?view=markup&pathrev=174
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: facter
 
 Files: *
 Copyright: 2011 Puppet Labs Inc
 License: Apache-2.0
- See /usr/share/common-licenses/Apache-2.0
+
+Files: lib/facter/interfaces.rb
+Copyright: 2007 psychedelys <psychedelys@gmail.com>
+           2007 James Turnbull <james@lovedthanlost.net>
+License: Apache-2.0
+
+Files: lib/facter/memory.rb
+Copyright: 2006 Mooter Media Ltd
+License: Apache-2.0
+
+Files: lib/facter/netmask.rb
+Copyright: 2007 David Schmitt <david@schmitt.edv-bus.at>
+           2007 Mark 'phips' Phillips
+License: Apache-2.0
+
+Files: lib/facter/processor.rb
+Copyright: 2006 Mooter Media Ltd
+License: Apache-2.0
+
+Files: lib/facter/macosx.rb, lib/facter/util/macosx.rb
+Copyright: 2007 Jeff McCune <jeff.mccune@northstarlabs.net>
+License: Apache-2.0
+
+Files: lib/facter/util/plist.rb lib/facter/util/plist/*
+Copyright: 2006 Ben Bleything <ben@bleything.net>
+           2006 Patrick May <patrick@hexane.org>
+License: MIT
+
+Files: lib/facter/util/cfpropertylist/*
+Copyright: 2009,2010 Christian Kruse <cjk@wwwtech.de>
+License: MIT
 
 Files: install.rb
 Copyright: 2004 Austin Ziegler <ruby-install@halostatue.ca>
-License: GPL-2 or later
-  See /usr/share/common-licenses/GPL-2
-License: Ruby
+License: GPL-2 or later, or Ruby
+ GPL-2 License: See /usr/share/common-licenses/GPL-2
+ .
+ Ruby License:
   1. You may make and give away verbatim copies of the source form of the
      software without restriction, provided that you duplicate all of the
      original copyright notices and associated disclaimers.
@@ -67,3 +99,27 @@ License: Ruby
      IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
      WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
      PURPOSE.
+
+License: Apache-2.0
+ See /usr/share/common-licenses/Apache-2.0
+
+License: MIT
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+ .
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
