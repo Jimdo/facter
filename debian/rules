@@ -6,3 +6,7 @@
 
 %:
 	dh $@ --buildsystem=ruby --with ruby
+
+override_dh_auto_install:
+	dh_auto_install -O--buildsystem=ruby
+	rm debian/facter/usr/lib/ruby/vendor_ruby/facter/util/cfpropertylist/LICENSE
