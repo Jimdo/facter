@@ -1,8 +1,12 @@
 facter (2.0.0~rc1-1) experimental; urgency=low
 
   * Imported Upstream version 2.0.0~rc1
+  * Facter 2 is inteded for Puppet 3, and is not guaranteed to be
+    compatible with puppet version 2 and earlier, so a Breaks: header has
+    been added.
+  * Revise debian/copyright
 
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Wed, 16 May 2012 19:22:52 +0200
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Wed, 16 May 2012 23:09:21 +0200
 
 facter (1.6.8-1) unstable; urgency=low
 
