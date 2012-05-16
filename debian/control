@@ -14,6 +14,7 @@ Package: facter
 Architecture: all
 XB-Ruby-Versions: ${ruby:Versions}
 Depends: ${misc:Depends}, ruby | ruby-interpreter, ruby-json, net-tools, bind9-host | host
+Breaks: puppet (<= 3~)
 Recommends: pciutils, dmidecode
 Description: collect and display facts about the system
  A cross-platform Ruby library for retrieving facts from operating systems.
