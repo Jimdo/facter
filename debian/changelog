@@ -1,22 +1,76 @@
-facter (1.6.0~rc1-1) experimental; urgency=low
+facter (1.6.8-1) unstable; urgency=low
 
-  * New upstream release candidate
-  * Support multiple ruby versions
-  * Rewrite packaging using gem2deb as documented by the Debian Ruby team
+  * Imported Upstream version 1.6.8
 
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Sat, 18 Jun 2011 00:20:40 +0200
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Tue, 01 May 2012 18:16:20 +0200
 
-facter (1.5.9~rc6-1) experimental; urgency=low
+facter (1.6.7-1) unstable; urgency=low
 
-  * New upstream release candidate
+  * Imported Upstream version 1.6.7
+  * Bump standards version (no changes)
 
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Tue, 10 May 2011 10:28:36 +0200
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Fri, 30 Mar 2012 22:47:22 +0200
 
-facter (1.5.9~rc5-1) experimental; urgency=low
+facter (1.6.6-1) unstable; urgency=low
 
-  * New upstream release candidate
+  * New upstream release
 
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Mon, 11 Apr 2011 12:10:07 +0200
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Mon, 27 Feb 2012 16:45:49 +0100
+
+facter (1.6.5-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Thu, 26 Jan 2012 11:11:13 +0100
+
+facter (1.6.4-2) unstable; urgency=low
+
+  * Move dmidecode from Depends to Recommends (Closes: #651501)
+
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Fri, 09 Dec 2011 09:40:16 +0100
+
+facter (1.6.4-1) unstable; urgency=low
+
+  * New upstream release
+  * Add dependency on dmidecode
+
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Thu, 08 Dec 2011 01:19:09 +0100
+
+facter (1.6.3-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Tue, 22 Nov 2011 21:44:38 +0100
+
+facter (1.6.2-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Wed, 12 Oct 2011 11:29:53 +0200
+
+facter (1.6.1-1) unstable; urgency=low
+
+  * New upstream release
+  * Use upstream tarball instead of git tag
+
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Thu, 06 Oct 2011 10:48:30 +0200
+
+facter (1.6.0-1) unstable; urgency=low
+
+  * New upstream release
+  * New packaging to support multiple ruby versions
+  * Upstream license change
+  * Update man page
+
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Fri, 24 Jun 2011 10:04:12 +0200
+
+facter (1.5.9-1) unstable; urgency=low
+
+  * New upstream release
+  * Rewrite package description a bit to please lintian
+  * Bump Standards-Version (no changes)
+
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Sun, 22 May 2011 13:43:16 +0200
 
 facter (1.5.9~rc2-1) experimental; urgency=low
 

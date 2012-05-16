@@ -1,0 +1,15 @@
+From: Stig Sandbeck Mathisen <ssm@debian.org>
+Forwarded: not-needed
+Subject: Do not require rubygems
+ We do not require rubygems; the apt repository should contain all
+ dependencies.
+--- a/lib/facter/application.rb
++++ b/lib/facter/application.rb
+@@ -35,7 +35,6 @@
+       # Print the facts as JSON and exit
+       if options[:json]
+         begin
+-          require 'rubygems'
+           require 'json'
+           puts JSON.dump(facts)
+           exit(0)
