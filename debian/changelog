@@ -1,8 +1,8 @@
-facter (1.6.9-1) UNRELEASED; urgency=low
+facter (1.6.9-1) unstable; urgency=low
 
   * New upstream release
 
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Fri, 18 May 2012 15:34:10 +0200
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Fri, 18 May 2012 15:42:48 +0200
 
 facter (1.6.8-1) unstable; urgency=low
 
