@@ -1,3 +1,9 @@
+facter (1.6.9-2) unstable; urgency=medium
+
+  * Add patch from upstream (b050eb1) to ignore LSB noise
+
+ -- Micah Anderson <micah@debian.org>  Wed, 30 May 2012 11:26:27 -0400
+
 facter (1.6.9-1) unstable; urgency=low
 
   * New upstream release
