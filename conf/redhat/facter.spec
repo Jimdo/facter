@@ -2,9 +2,10 @@
 
 Summary: Ruby module for collecting simple facts about a host operating system
 Name: facter
-Version: 1.6.9
+Version: 1.6.10
 Release: 1%{?dist}
-#Release: 0.1rc1%{?dist}
+#Release: 0.1rc1.2%{?dist}
+Epoch: 1
 License: Apache 2.0
 Group: System Environment/Base
 URL: http://www.puppetlabs.com/puppet/related-projects/%{name}
@@ -53,6 +54,15 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Jun 13 2012 Moses Mendoza <moses@puppetlabs.com> - 1.6.10-1
+- Update for 1.6.10
+
+* Fri Jun 8 2012 Moses Mendoza <moses@puppetlabs.com> - 1.6.10-0.1rc1.2
+- Bump epoch to 1 to address errant Facter 2.0 rc release
+
+* Wed Jun 6 2012 Moses Mendoza <moses@puppetlabs.com> - 1.6.10-0.1rc1
+- Update for 1.6.10rc1
+
 * Thu May 17 2012 Moses Mendoza <moses@puppetlabs.com> - 1.6.9-1
 - Update for 1.6.9
 
