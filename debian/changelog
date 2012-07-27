@@ -1,3 +1,9 @@
+facter (1.6.10-2) UNRELEASED; urgency=low
+
+  * fix xen0/xenu detection (Closes: #682417)
+
+ -- Micah Anderson <micah@debian.org>  Fri, 27 Jul 2012 15:27:47 -0400
+
 facter (1.6.10-1) unstable; urgency=low
 
   * New upstream release
