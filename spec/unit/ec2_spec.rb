@@ -1,4 +1,4 @@
-#!/usr/bin/env rspec
+#! /usr/bin/env ruby
 
 require 'spec_helper'
 require 'facter/util/ec2'
@@ -28,11 +28,6 @@ describe "ec2 facts" do
         with("#{api_prefix}/2008-02-01/meta-data/foo").
         at_least_once.returns(StringIO.new("bar"))
 
-      # No user-data
-      Object.any_instance.expects(:open).
-        with("#{api_prefix}/2008-02-01/user-data/").
-        at_least_once.returns(StringIO.new(""))
-
       Facter.collection.loader.load(:ec2)
       Facter.fact(:ec2_foo).value.should == "bar"
     end
@@ -45,11 +40,6 @@ describe "ec2 facts" do
       Object.any_instance.expects(:open).
         with("#{api_prefix}/2008-02-01/meta-data/foo").
         at_least_once.returns(StringIO.new("bar\nbaz"))
-
-      # No user-data
-      Object.any_instance.expects(:open).
-        with("#{api_prefix}/2008-02-01/user-data/").
-        at_least_once.returns(StringIO.new(""))
 
       Facter.collection.loader.load(:ec2)
       Facter.fact(:ec2_foo).value.should == "bar,baz"
@@ -68,11 +58,6 @@ describe "ec2 facts" do
         with("#{api_prefix}/2008-02-01/meta-data/foo/bar").
         at_least_once.returns(StringIO.new("baz"))
 
-      # No user-data
-      Object.any_instance.expects(:open).
-        with("#{api_prefix}/2008-02-01/user-data/").
-        at_least_once.returns(StringIO.new(""))
-
       Facter.collection.loader.load(:ec2)
       Facter.fact(:ec2_foo_bar).value.should == "baz"
     end
@@ -83,9 +68,9 @@ describe "ec2 facts" do
         with("#{api_prefix}/2008-02-01/meta-data/").
         at_least_once.returns(StringIO.new(""))
 
-      Object.any_instance.expects(:open).
-        with("#{api_prefix}/2008-02-01/user-data/").
-        at_least_once.returns(StringIO.new("test"))
+      Facter::Util::EC2.stubs(:read_uri).
+        with("#{api_prefix}/latest/user-data/").
+        returns("test")
 
       Facter.collection.loader.load(:ec2)
       Facter.fact(:ec2_userdata).value.should == ["test"]
@@ -109,9 +94,9 @@ describe "ec2 facts" do
         with("#{api_prefix}/2008-02-01/meta-data/").\
         at_least_once.returns(StringIO.new(""))
 
-      Object.any_instance.expects(:open).\
-        with("#{api_prefix}/2008-02-01/user-data/").\
-        at_least_once.returns(StringIO.new("test"))
+      Facter::Util::EC2.stubs(:read_uri).
+        with("#{api_prefix}/latest/user-data/").
+        returns("test")
 
       # Force a fact load
       Facter.collection.loader.load(:ec2)
@@ -137,15 +122,34 @@ describe "ec2 facts" do
         with("#{api_prefix}/2008-02-01/meta-data/").\
         at_least_once.returns(StringIO.new(""))
 
-      Object.any_instance.expects(:open).\
-        with("#{api_prefix}/2008-02-01/user-data/").\
-        at_least_once.returns(StringIO.new("test"))
+      Facter::Util::EC2.stubs(:read_uri).
+        with("#{api_prefix}/latest/user-data/").
+        returns("test")
 
       # Force a fact load
       Facter.collection.loader.load(:ec2)
 
       Facter.fact(:ec2_userdata).value.should == ["test"]
     end
+
+    it "should return nil if open fails" do
+      Facter.expects(:warn).with('Could not retrieve ec2 metadata: host unreachable').twice
+      Facter::Util::Resolution.any_instance.stubs(:warn) # do not pollute test output
+
+      Object.any_instance.expects(:open).
+        with("#{api_prefix}/2008-02-01/meta-data/").
+        at_least_once.raises(RuntimeError, 'host unreachable')
+
+      Facter::Util::EC2.stubs(:read_uri).
+        with("#{api_prefix}/latest/user-data/").
+        raises(RuntimeError, 'host unreachable')
+
+      # Force a fact load
+      Facter.collection.loader.load(:ec2)
+
+      Facter.fact(:ec2_userdata).value.should be_nil
+    end
+
   end
 
   describe "when api connect test fails" do
@@ -165,6 +169,12 @@ describe "ec2 facts" do
       Facter.collection.loader.load(:ec2)
 
       Facter.fact(:ec2_userdata).should == nil
+    end
+
+    it "should rescue the exception" do
+      Facter::Util::EC2.expects(:open).with("#{api_prefix}:80/").raises(Timeout::Error)
+
+      Facter::Util::EC2.should_not be_can_connect
     end
   end
 end

@@ -1,13 +1,8 @@
-#!/usr/bin/env rspec
+#! /usr/bin/env ruby
 
 require 'spec_helper'
 
 describe Facter do
-
-  it "should have a version" do
-    Facter.version.should =~ /^[0-9]+(\.[0-9]+)*$/
-  end
-
   it "should have a method for returning its collection" do
     Facter.should respond_to(:collection)
   end
