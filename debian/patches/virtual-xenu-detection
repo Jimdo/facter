@@ -1,0 +1,29 @@
+From 00fb8c9198d237cc3f47ebd9d87a2a61ddd60598 Mon Sep 17 00:00:00 2001
+From: Grant Heffernan <heffergm@gmail.com>
+Date: Wed, 1 Feb 2012 18:38:29 -0500
+Subject: [PATCH 005/132] fix xen0/xenu detection:
+ https://projects.puppetlabs.com/issues/10625
+
+---
+ lib/facter/virtual.rb |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/lib/facter/virtual.rb b/lib/facter/virtual.rb
+index ea9e1bd..652e528 100644
+--- a/lib/facter/virtual.rb
++++ b/lib/facter/virtual.rb
+@@ -73,9 +73,9 @@ Facter.add("virtual") do
+     end
+ 
+     if Facter::Util::Virtual.xen?
+-      if FileTest.exists?("/proc/xen/xsd_kva")
++      if FileTest.exists?("/dev/xen/evtchn")
+         result = "xen0"
+-      elsif FileTest.exists?("/proc/xen/capabilities")
++      elsif FileTest.exists?("/proc/xen")
+         result = "xenu"
+       end
+     end
+-- 
+1.7.10.4
+
