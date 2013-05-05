@@ -2,6 +2,7 @@
 
 require 'spec_helper'
 require 'facter/util/virtual'
+require 'stringio'
 
 describe Facter::Util::Virtual do
 
@@ -57,6 +58,14 @@ describe Facter::Util::Virtual do
     Facter::Util::Virtual.should_not be_zone
   end
 
+  it "(#14522) handles the unencoded binary data in /proc/self/status on Solaris" do
+    Facter.fact(:osfamily).stubs(:value).returns("Solaris")
+    File.stubs(:open).with('/proc/self/status', 'rb').returns(solaris_proc_self_status)
+    FileTest.stubs(:exists?).with('/proc/self/status').returns(true)
+
+    Facter::Util::Virtual.vserver?.should eq(false)
+  end
+
   it "should not detect vserver if no self status" do
     FileTest.stubs(:exists?).with("/proc/self/status").returns(false)
     Facter::Util::Virtual.should_not be_vserver
@@ -64,20 +73,58 @@ describe Facter::Util::Virtual do
 
   it "should detect vserver when vxid present in process status" do
     FileTest.stubs(:exists?).with("/proc/self/status").returns(true)
-    File.stubs(:read).with("/proc/self/status").returns("VxID: 42\n")
+    File.stubs(:open).with("/proc/self/status", "rb").returns(StringIO.new("VxID: 42\n"))
     Facter::Util::Virtual.should be_vserver
   end
 
   it "should detect vserver when s_context present in process status" do
     FileTest.stubs(:exists?).with("/proc/self/status").returns(true)
-    File.stubs(:read).with("/proc/self/status").returns("s_context: 42\n")
+    File.stubs(:open).with("/proc/self/status", "rb").returns(StringIO.new("s_context: 42\n"))
     Facter::Util::Virtual.should be_vserver
   end
 
   it "should not detect vserver when vserver flags not present in process status" do
     FileTest.stubs(:exists?).with("/proc/self/status").returns(true)
-    File.stubs(:read).with("/proc/self/status").returns("wibble: 42\n")
+    File.stubs(:open).with("/proc/self/status", "rb").returns(StringIO.new("wibble: 42\n"))
     Facter::Util::Virtual.should_not be_vserver
+  end
+
+  it "should identify kvm" do
+    Facter::Util::Virtual.stubs(:kvm?).returns(true)
+    Facter::Util::Resolution.stubs(:exec).with('dmidecode').returns("something")
+    Facter::Util::Virtual.kvm_type().should == "kvm"
+  end
+
+  it "should be able to detect RHEV via sysfs on Linux" do
+    # Fake files are always hard to stub. :/
+    File.stubs(:read).with("/sys/devices/virtual/dmi/id/product_name").
+      returns("RHEV Hypervisor")
+
+    Facter::Util::Virtual.should be_rhev
+  end
+
+  it "should be able to detect RHEV via sysfs on Linux improperly" do
+    # Fake files are always hard to stub. :/
+    File.stubs(:read).with("/sys/devices/virtual/dmi/id/product_name").
+      returns("something else")
+
+    Facter::Util::Virtual.should_not be_rhev
+  end
+
+  it "should be able to detect ovirt via sysfs on Linux" do
+    # Fake files are always hard to stub. :/
+    File.stubs(:read).with("/sys/devices/virtual/dmi/id/product_name").
+      returns("oVirt Node")
+
+    Facter::Util::Virtual.should be_ovirt
+  end
+
+  it "should be able to detect ovirt via sysfs on Linux improperly" do
+    # Fake files are always hard to stub. :/
+    File.stubs(:read).with("/sys/devices/virtual/dmi/id/product_name").
+      returns("something else")
+
+    Facter::Util::Virtual.should_not be_ovirt
   end
 
   fixture_path = fixtures('virtual', 'proc_self_status')
@@ -94,7 +141,7 @@ describe Facter::Util::Virtual do
       it "should detect vserver as #{expected.inspect}" do
         status = File.read(status_file)
         FileTest.stubs(:exists?).with("/proc/self/status").returns(true)
-        File.stubs(:read).with("/proc/self/status").returns(status)
+        File.stubs(:open).with("/proc/self/status", "rb").returns(StringIO.new(status))
         Facter::Util::Virtual.vserver?.should == expected
       end
     end
@@ -179,5 +226,55 @@ describe Facter::Util::Virtual do
     Facter.fact(:kernel).stubs(:value).returns("HP-UX")
     Facter::Util::Resolution.stubs(:exec).with("/usr/bin/getconf MACHINE_MODEL").returns('ia64 hp server rx660')
     Facter::Util::Virtual.should_not be_hpvm
+  end
+
+  it "should be able to detect virtualbox via sysfs on Linux" do
+    # Fake files are always hard to stub. :/
+    File.stubs(:read).with("/sys/devices/virtual/dmi/id/product_name").
+      returns("VirtualBox")
+
+    Facter::Util::Virtual.should be_virtualbox
+  end
+
+  it "should be able to detect virtualbox via sysfs on Linux improperly" do
+    # Fake files are always hard to stub. :/
+    File.stubs(:read).with("/sys/devices/virtual/dmi/id/product_name").
+      returns("HP-Oracle-Sun-VMWare-funky-town")
+
+    Facter::Util::Virtual.should_not be_virtualbox
+  end
+
+  let :solaris_proc_self_status do
+    sample_data = my_fixture_read('solaris10_proc_self_status1')
+    mockfile = mock('File')
+    mockfile.stubs(:read).returns(sample_data)
+    mockfile
+  end
+
+  shared_examples_for "virt-what" do |kernel, path, null_device|
+    Facter.fact(:kernel).stubs(:value).returns(kernel)
+    Facter::Util::Resolution.expects(:which).with("virt-what").returns(path)
+    Facter::Util::Resolution.expects(:exec).with("#{path} 2>#{null_device}")
+    Facter::Util::Virtual.virt_what
+  end
+
+  context "on linux" do
+    it_should_behave_like "virt-what", "linux", "/usr/bin/virt-what", "/dev/null"
+
+    it "should strip out warnings on stdout from virt-what" do
+      virt_what_warning = "virt-what: this script must be run as root"
+      Facter.fact(:kernel).stubs(:value).returns('linux')
+      Facter::Util::Resolution.expects(:which).with('virt-what').returns "/usr/bin/virt-what"
+      Facter::Util::Resolution.expects(:exec).with('/usr/bin/virt-what 2>/dev/null').returns virt_what_warning
+      Facter::Util::Virtual.virt_what.should_not match /^virt-what: /
+    end
+  end
+
+  context "on unix" do
+    it_should_behave_like "virt-what", "unix", "/usr/bin/virt-what", "/dev/null"
+  end
+
+  context "on windows" do
+    it_should_behave_like "virt-what", "windows", 'c:\windows\system32\virt-what', "NUL"
   end
 end

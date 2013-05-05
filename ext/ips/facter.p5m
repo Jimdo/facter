@@ -1,6 +1,6 @@
-set name=pkg.fmri value=pkg://puppetlabs.com/application/facter@1.6.17,11.4.2-0
+set name=pkg.fmri value=pkg://puppetlabs.com/application/facter@1.7.0,11.4.2-0
 set name=pkg.summary value="Facter, a system inventory tool"
-set name=pkg.human-version value="1.6.17"
+set name=pkg.human-version value="1.7.0"
 set name=pkg.description value="You can prove anything with facts!"
 set name=info.classification value="org.opensolaris.category.2008:Applications/System Utilities"
 set name=org.opensolaris.consolidation value="puppet"

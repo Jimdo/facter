@@ -28,7 +28,8 @@ describe "ec2 facts" do
         with("#{api_prefix}/2008-02-01/meta-data/foo").
         at_least_once.returns(StringIO.new("bar"))
 
-      Facter.collection.loader.load(:ec2)
+      Facter.collection.internal_loader.load(:ec2)
+
       Facter.fact(:ec2_foo).value.should == "bar"
     end
 
@@ -41,7 +42,8 @@ describe "ec2 facts" do
         with("#{api_prefix}/2008-02-01/meta-data/foo").
         at_least_once.returns(StringIO.new("bar\nbaz"))
 
-      Facter.collection.loader.load(:ec2)
+      Facter.collection.internal_loader.load(:ec2)
+
       Facter.fact(:ec2_foo).value.should == "bar,baz"
     end
 
@@ -58,7 +60,8 @@ describe "ec2 facts" do
         with("#{api_prefix}/2008-02-01/meta-data/foo/bar").
         at_least_once.returns(StringIO.new("baz"))
 
-      Facter.collection.loader.load(:ec2)
+      Facter.collection.internal_loader.load(:ec2)
+
       Facter.fact(:ec2_foo_bar).value.should == "baz"
     end
 
@@ -72,7 +75,7 @@ describe "ec2 facts" do
         with("#{api_prefix}/latest/user-data/").
         returns("test")
 
-      Facter.collection.loader.load(:ec2)
+      Facter.collection.internal_loader.load(:ec2)
       Facter.fact(:ec2_userdata).value.should == ["test"]
     end
   end
@@ -99,7 +102,7 @@ describe "ec2 facts" do
         returns("test")
 
       # Force a fact load
-      Facter.collection.loader.load(:ec2)
+      Facter.collection.internal_loader.load(:ec2)
 
       Facter.fact(:ec2_userdata).value.should == ["test"]
     end
@@ -127,7 +130,7 @@ describe "ec2 facts" do
         returns("test")
 
       # Force a fact load
-      Facter.collection.loader.load(:ec2)
+      Facter.collection.internal_loader.load(:ec2)
 
       Facter.fact(:ec2_userdata).value.should == ["test"]
     end
@@ -145,7 +148,7 @@ describe "ec2 facts" do
         raises(RuntimeError, 'host unreachable')
 
       # Force a fact load
-      Facter.collection.loader.load(:ec2)
+      Facter.collection.internal_loader.load(:ec2)
 
       Facter.fact(:ec2_userdata).value.should be_nil
     end
@@ -153,6 +156,10 @@ describe "ec2 facts" do
   end
 
   describe "when api connect test fails" do
+    before :each do
+      Facter.stubs(:warnonce)
+    end
+
     it "should not populate ec2_userdata" do
       # Emulate ec2 for now as it matters little to this test
       Facter::Util::EC2.stubs(:has_euca_mac?).returns(true)
@@ -166,7 +173,7 @@ describe "ec2 facts" do
         with("#{api_prefix}/2008-02-01/user-data/").never
 
       # Force a fact load
-      Facter.collection.loader.load(:ec2)
+      Facter.collection.internal_loader.load(:ec2)
 
       Facter.fact(:ec2_userdata).should == nil
     end

@@ -4,13 +4,15 @@ require 'spec_helper'
 require 'facter/util/ip'
 
 describe Facter::Util::IP do
+  include FacterSpec::ConfigHelper
+
   before :each do
-    Facter::Util::Config.stubs(:is_windows?).returns(false)
+    given_a_configuration_of(:is_windows => false)
   end
 
   [:freebsd, :linux, :netbsd, :openbsd, :sunos, :darwin, :"hp-ux", :"gnu/kfreebsd", :windows].each do |platform|
     it "should be supported on #{platform}" do
-      Facter::Util::Config.stubs(:is_windows?).returns(platform == :windows)
+      given_a_configuration_of(:is_windows => platform == :windows)
       Facter::Util::IP.supported_platforms.should be_include(platform)
     end
   end
@@ -406,6 +408,45 @@ describe Facter::Util::IP do
       Facter::Util::IP.expects(:get_output_for_interface_and_label).with("Teredo Tunneling Pseudo-Interface", "ipaddress6").returns(windows_netsh)
 
       Facter::Util::IP.get_interface_value("Teredo Tunneling Pseudo-Interface", "ipaddress6").should == "2001:0:4137:9e76:2087:77a:53ef:7527"
+    end
+  end
+
+  describe "exec_ifconfig" do
+    it "uses get_ifconfig" do
+      Facter::Util::IP.stubs(:get_ifconfig).returns("/sbin/ifconfig").once
+
+      Facter::Util::IP.exec_ifconfig
+    end
+    it "support additional arguments" do
+      Facter::Util::IP.stubs(:get_ifconfig).returns("/sbin/ifconfig")
+
+      Facter::Util::Resolution.stubs(:exec).with("/sbin/ifconfig -a")
+
+      Facter::Util::IP.exec_ifconfig(["-a"])
+    end
+    it "joins multiple arguments correctly" do
+      Facter::Util::IP.stubs(:get_ifconfig).returns("/sbin/ifconfig")
+
+      Facter::Util::Resolution.stubs(:exec).with("/sbin/ifconfig -a -e -i -j")
+
+      Facter::Util::IP.exec_ifconfig(["-a","-e","-i","-j"])
+    end
+  end
+  describe "get_ifconfig" do
+    it "assigns /sbin/ifconfig if it is executable" do
+      File.stubs(:executable?).returns(false)
+      File.stubs(:executable?).with("/sbin/ifconfig").returns(true)
+      Facter::Util::IP.get_ifconfig.should eq("/sbin/ifconfig")
+    end
+    it "assigns /usr/sbin/ifconfig if it is executable" do
+      File.stubs(:executable?).returns(false)
+      File.stubs(:executable?).with("/usr/sbin/ifconfig").returns(true)
+      Facter::Util::IP.get_ifconfig.should eq("/usr/sbin/ifconfig")
+    end
+    it "assigns /bin/ifconfig if it is executable" do
+      File.stubs(:executable?).returns(false)
+      File.stubs(:executable?).with("/bin/ifconfig").returns(true)
+      Facter::Util::IP.get_ifconfig.should eq("/bin/ifconfig")
     end
   end
 

@@ -30,19 +30,12 @@ class Facter::Util::Fact
 
   # Add a new resolution mechanism.  This requires a block, which will then
   # be evaluated in the context of the new mechanism.
-  def add(&block)
-    raise ArgumentError, "You must pass a block to Fact<instance>.add" unless block_given?
-
+  def add(value = nil, &block)
     begin
       resolve = Facter::Util::Resolution.new(@name)
 
-      resolve.instance_eval(&block)
-
+      resolve.instance_eval(&block) if block
       @resolves << resolve
-
-      # Immediately sort the resolutions, so that we always have
-      # a sorted list for looking up values.
-      @resolves.sort! { |a, b| b.weight <=> a.weight }
 
       resolve
     rescue => e
@@ -51,10 +44,13 @@ class Facter::Util::Fact
     end
   end
 
-  # Flush any cached values.
+  ##
+  # Flush any cached values.  If the resolver has a callback block defined
+  # using the on_flush DSL method, then invoke that block by sending a message
+  # to Resolution#flush.
   def flush
+    @resolves.each { |r| r.flush }
     @value = nil
-    @suitable = nil
   end
 
   # Return the value for a given fact.  Searches through all of the mechanisms
@@ -62,37 +58,23 @@ class Facter::Util::Fact
   def value
     return @value if @value
 
-    if @resolves.length == 0
+    if @resolves.empty?
       Facter.debug "No resolves for %s" % @name
       return nil
     end
 
     searching do
-      @value = nil
 
-      foundsuits = false
-      @value = @resolves.inject(nil) { |result, resolve|
-        next unless resolve.suitable?
-        foundsuits = true
+      suitable_resolutions = sort_by_weight(find_suitable_resolutions(@resolves))
+      @value = find_first_real_value(suitable_resolutions)
 
-        tmp = resolve.value
+      announce_when_no_suitable_resolution(suitable_resolutions)
+      announce_when_no_value_found(@value)
 
-        break tmp unless tmp.nil? or tmp == ""
-      }
-
-      unless foundsuits
-        Facter.debug "Found no suitable resolves of %s for %s" % [@resolves.length, @name]
-      end
-    end
-
-    if @value.nil?
-      # nothing
-      Facter.debug("value for %s is still nil" % @name)
-      return nil
-    else
-      return @value
+      @value
     end
   end
+
 
   private
 
@@ -103,16 +85,7 @@ class Facter::Util::Fact
 
   # Lock our searching process, so we never ge stuck in recursion.
   def searching
-    if searching?
-      Facter.debug "Caught recursion on %s" % @name
-
-      # return a cached value if we've got it
-      if @value
-        return @value
-      else
-        return nil
-      end
-    end
+    raise RuntimeError, "Caught recursion on #{@name}" if searching?
 
     # If we've gotten this far, we're not already searching, so go ahead and do so.
     @searching = true
@@ -121,5 +94,39 @@ class Facter::Util::Fact
     ensure
       @searching = false
     end
+  end
+
+  def find_suitable_resolutions(resolutions)
+    resolutions.find_all{ |resolve| resolve.suitable? }
+  end
+
+  def sort_by_weight(resolutions)
+    resolutions.sort { |a, b| b.weight <=> a.weight }
+  end
+
+  def find_first_real_value(resolutions)
+    resolutions.each do |resolve|
+      value = normalize_value(resolve.value)
+      if not value.nil?
+        return value
+      end
+    end
+    nil
+  end
+
+  def announce_when_no_suitable_resolution(resolutions)
+    if resolutions.empty?
+      Facter.debug "Found no suitable resolves of %s for %s" % [@resolves.length, @name]
+    end
+  end
+
+  def announce_when_no_value_found(value)
+    if value.nil?
+      Facter.debug("value for %s is still nil" % @name)
+    end
+  end
+
+  def normalize_value(value)
+    value == "" ? nil : value
   end
 end

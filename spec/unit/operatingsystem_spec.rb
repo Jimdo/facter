@@ -29,8 +29,20 @@ describe "Operating System fact" do
       Facter.fact(:operatingsystem).value.should == "Nexenta"
     end
 
-    it "should be Solaris for SunOS if no other variants match" do
+    it "should be Solaris if /etc/debian_version is missing and uname -v failed to match" do
+      FileTest.expects(:exists?).with("/etc/debian_version").returns false
       Facter.fact(:operatingsystem).value.should == "Solaris"
+    end
+
+    {
+      "SmartOS"     => "joyent_20120629T002039Z",
+      "OmniOS"      => "omnios-dda4bb3",
+      "OpenIndiana" => "oi_151a",
+    }.each_pair do |distribution, string|
+      it "should be #{distribution} if uname -v is '#{string}'" do
+        Facter::Util::Resolution.stubs(:exec).with('uname -v').returns(string)
+        Facter.fact(:operatingsystem).value.should == distribution
+      end
     end
   end
 
@@ -51,6 +63,7 @@ describe "Operating System fact" do
       "MeeGo"       => "/etc/meego-release",
       "Archlinux"   => "/etc/arch-release",
       "OracleLinux" => "/etc/oracle-release",
+      "OpenWrt"     => "/etc/openwrt_release",
       "Alpine"      => "/etc/alpine-release",
       "VMWareESX"   => "/etc/vmware-release",
       "Bluewhite64" => "/etc/bluewhite64-version",
@@ -66,7 +79,7 @@ describe "Operating System fact" do
 
     describe "depending on LSB release information" do
       before :each do
-        Facter.collection.loader.load(:lsb)
+        Facter.collection.internal_loader.load(:lsb)
       end
 
       it "on Ubuntu should use the lsbdistid fact" do
@@ -87,6 +100,7 @@ describe "Operating System fact" do
       "SLC"        => "Scientific Linux CERN SLC release 5.7 (Boron)",
       "Ascendos"   => "Ascendos release 6.0 (Nameless)",
       "CloudLinux" => "CloudLinux Server release 5.5",
+      "XenServer"  => "XenServer release 5.6.0-31188p (xenenterprise)",
     }.each_pair do |operatingsystem, string|
       it "should be #{operatingsystem} based on /etc/redhat-release contents #{string}" do
         FileTest.expects(:exists?).with("/etc/redhat-release").returns true

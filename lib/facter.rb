@@ -40,21 +40,20 @@ module Facter
   # puts Facter['operatingsystem']
   #
 
-  # Set LANG to force i18n to C
-  #
-  ENV['LANG'] = 'C'
-
   GREEN = "[0;32m"
   RESET = "[0m"
   @@debug = 0
   @@timing = 0
   @@messages = {}
+  @@debug_messages = {}
 
   # module methods
 
   def self.collection
     unless defined?(@collection) and @collection
-      @collection = Facter::Util::Collection.new
+      @collection = Facter::Util::Collection.new(
+        Facter::Util::Loader.new,
+        Facter::Util::Config.ext_fact_loader)
     end
     @collection
   end
@@ -69,6 +68,14 @@ module Facter
     end
   end
 
+  # Debug once.
+  def self.debugonce(msg)
+    if msg and not msg.empty? and @@debug_messages[msg].nil?
+      @@debug_messages[msg] = true
+      debug(msg)
+    end
+  end
+
   def self.debugging?
     @@debug != 0
   end
@@ -80,6 +87,17 @@ module Facter
 
   def self.timing?
     @@timing != 0
+  end
+
+  # Facter.json? is meant to provide a lightweight way to check if the JSON
+  # "feature" is available.
+  def self.json?
+    begin
+      require 'json'
+      true
+    rescue LoadError
+      false
+    end
   end
 
   # Return a fact object by name.  If you use this, you still have to call
