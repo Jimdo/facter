@@ -1,4 +1,4 @@
-facter (1.6.17-1) UNRELEASED; urgency=low
+facter (1.7.0-1) UNRELEASED; urgency=low
 
   [ Micah Anderson ]
   * fix xen0/xenu detection (Closes: #682417)
@@ -8,7 +8,7 @@ facter (1.6.17-1) UNRELEASED; urgency=low
   * Refresh virtual xen0/xenu detection patch
   * Refresh rubygems patch
 
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Thu, 03 Jan 2013 00:11:46 +0100
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Sun, 05 May 2013 18:36:25 +0200
 
 facter (1.6.10-1) unstable; urgency=low
 
