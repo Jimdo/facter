@@ -1,12 +1,12 @@
-facter (1.7.0-1) UNRELEASED; urgency=low
+facter (1.7.0-1) unstable; urgency=low
 
   [ Micah Anderson ]
   * fix xen0/xenu detection (Closes: #682417)
 
   [ Stig Sandbeck Mathisen ]
   * New upstream release
-  * Refresh virtual xen0/xenu detection patch
-  * Refresh rubygems patch
+  * Recommend virt-what for virtualization detection
+  * Update copyright information
 
  -- Stig Sandbeck Mathisen <ssm@debian.org>  Sun, 05 May 2013 18:36:25 +0200
 
