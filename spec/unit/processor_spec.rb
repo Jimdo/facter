@@ -23,7 +23,7 @@ describe "Processor facts" do
       # processor facts belong to a file with a different name,
       # so load the file explicitly (after stubbing kernel),
       # but we have to stub execquery first
-      Facter.collection.loader.load(:processor)
+      Facter.collection.internal_loader.load(:processor)
     end
 
     describe "2003" do
@@ -69,7 +69,7 @@ describe "Processor facts" do
 
   describe "on Solaris" do
     before :each do
-      Facter.collection.loader.load(:processor)
+      Facter.collection.internal_loader.load(:processor)
       Facter.fact(:kernel).stubs(:value).returns(:sunos)
       Facter.stubs(:value).with(:kernelrelease).returns("5.10")
     end
@@ -89,7 +89,7 @@ describe "Processor facts" do
 
   describe "on Unixes" do
     before :each do
-      Facter.collection.loader.load(:processor)
+      Facter.collection.internal_loader.load(:processor)
     end
 
     it "should be 1 in SPARC fixture" do
@@ -187,6 +187,21 @@ describe "Processor facts" do
 
       Facter.fact(:processorcount).value.should == "2"
     end
+
+    it "should be 2 on dual-processor FreeBSD box" do
+      Facter.fact(:kernel).stubs(:value).returns("FreeBSD")
+      Facter::Util::Resolution.stubs(:exec).with("sysctl -n hw.ncpu").returns('2')
+
+      Facter.fact(:processorcount).value.should == "2"
+    end
+
+    it "should print the correct CPU Model on FreeBSD" do
+      Facter.fact(:kernel).stubs(:value).returns("FreeBSD")
+      Facter::Util::Resolution.stubs(:exec).with("sysctl -n hw.model").returns('SomeVendor CPU 3GHz')
+
+      Facter.fact(:processor).value.should == "SomeVendor CPU 3GHz"
+    end
+
 
     it "should be 2 on dual-processor DragonFly box" do
       Facter.fact(:kernel).stubs(:value).returns("DragonFly")
@@ -297,7 +312,7 @@ describe "processorX facts" do
           Facter.fact(:kernel).stubs(:value).returns("AIX")
           Facter::Util::Processor.stubs(:lsdev).returns(lsdev_example)
           Facter::Util::Processor.stubs(:lsattr).returns(lsattr)
-          Facter.collection.loader.load(:processor)
+          Facter.collection.internal_loader.load(:processor)
         end
 
         lsdev_example.split("\n").each_with_index do |line, idx|
@@ -335,7 +350,7 @@ describe "processorX facts" do
             Facter.fact(:kernel).stubs(:value).returns("HP-UX")
             Facter::Util::Processor.stubs(:ioscan).returns(ioscan)
             Facter::Util::Processor.stubs(:machinfo).returns(machinfo_example)
-            Facter.collection.loader.load(:processor)
+            Facter.collection.internal_loader.load(:processor)
           end
 
           %w{ 0 1 }.each do |j|
@@ -387,12 +402,12 @@ describe "processorX facts" do
           if sm == "sched.models_present" then
             before :each do
               Facter::Util::Processor.stubs(:read_sched_models).returns(sched_models)
-              Facter.collection.loader.load(:processor)
+              Facter.collection.internal_loader.load(:processor)
             end
           else
             before :each do
               Facter::Util::Processor.stubs(:read_sched_models).returns(nil)
-              Facter.collection.loader.load(:processor)
+              Facter.collection.internal_loader.load(:processor)
             end
           end
 

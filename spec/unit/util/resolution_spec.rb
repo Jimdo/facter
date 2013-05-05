@@ -4,12 +4,20 @@ require 'spec_helper'
 require 'facter/util/resolution'
 
 describe Facter::Util::Resolution do
+  include FacterSpec::ConfigHelper
+
   it "should require a name" do
     lambda { Facter::Util::Resolution.new }.should raise_error(ArgumentError)
   end
 
   it "should have a name" do
     Facter::Util::Resolution.new("yay").name.should == "yay"
+  end
+
+  it "should be able to set the value" do
+    resolve = Facter::Util::Resolution.new("yay")
+    resolve.value = "foo"
+    resolve.value.should == "foo"
   end
 
   it "should have a method for setting the weight" do
@@ -41,6 +49,66 @@ describe Facter::Util::Resolution do
     res = Facter::Util::Resolution.new("yay")
     res.timeout = "testing"
     res.limit.should == "testing"
+  end
+
+
+  describe "when overriding environment variables" do
+    it "should execute the caller's block with the specified env vars" do
+      test_env = { "LANG" => "C", "FOO" => "BAR" }
+      Facter::Util::Resolution.with_env test_env do
+        test_env.keys.each do |key|
+          ENV[key].should == test_env[key]
+        end
+      end
+    end
+
+    it "should restore pre-existing environment variables to their previous values" do
+      orig_env = {}
+      new_env = {}
+      # an arbitrary sentinel value to use to temporarily set the environment vars to
+      sentinel_value = "Abracadabra"
+
+      # grab some values from the existing ENV (arbitrarily choosing 3 here)
+      ENV.keys.first(3).each do |key|
+        # save the original values so that we can test against them later
+        orig_env[key] = ENV[key]
+        # create bogus temp values for the chosen keys
+        new_env[key] = sentinel_value
+      end
+
+      # verify that, during the 'with_env', the new values are used
+      Facter::Util::Resolution.with_env new_env do
+        orig_env.keys.each do |key|
+          ENV[key].should == new_env[key]
+        end
+      end
+
+      # verify that, after the 'with_env', the old values are restored
+      orig_env.keys.each do |key|
+        ENV[key].should == orig_env[key]
+      end
+    end
+
+    it "should not be affected by a 'return' statement in the yield block" do
+      @sentinel_var = :resolution_test_foo.to_s
+
+      # the intent of this test case is to test a yield block that contains a return statement.  However, it's illegal
+      # to use a return statement outside of a method, so we need to create one here to give scope to the 'return'
+      def handy_method()
+        ENV[@sentinel_var] = "foo"
+        new_env = { @sentinel_var => "bar" }
+
+        Facter::Util::Resolution.with_env new_env do
+          ENV[@sentinel_var].should == "bar"
+          return
+        end
+      end
+
+      handy_method()
+
+      ENV[@sentinel_var].should == "foo"
+
+    end
   end
 
   describe "when setting the code" do
@@ -87,6 +155,27 @@ describe Facter::Util::Resolution do
     end
   end
 
+  describe 'callbacks when flushing facts' do
+    class FlushFakeError < StandardError; end
+
+    subject do
+      Facter::Util::Resolution.new("jeff")
+    end
+
+    context '#on_flush' do
+      it 'accepts a block with on_flush' do
+        subject.on_flush() { raise NotImplementedError }
+      end
+    end
+
+    context '#flush' do
+      it 'calls the block passed to on_flush' do
+        subject.on_flush() { raise FlushFakeError }
+        expect { subject.flush }.to raise_error FlushFakeError
+      end
+    end
+  end
+
   it "should be able to return a value" do
     Facter::Util::Resolution.new("yay").should respond_to(:value)
   end
@@ -94,6 +183,11 @@ describe Facter::Util::Resolution do
   describe "when returning the value" do
     before do
       @resolve = Facter::Util::Resolution.new("yay")
+    end
+
+    it "should return any value that has been provided" do
+      @resolve.value = "foo"
+      @resolve.value.should == "foo"
     end
 
     describe "and setcode has not been called" do
@@ -106,7 +200,7 @@ describe Facter::Util::Resolution do
     describe "and the code is a string" do
       describe "on windows" do
         before do
-          Facter::Util::Config.stubs(:is_windows?).returns(true)
+          given_a_configuration_of(:is_windows => true)
         end
 
         it "should return the result of executing the code" do
@@ -125,7 +219,7 @@ describe Facter::Util::Resolution do
 
       describe "on non-windows systems" do
         before do
-          Facter::Util::Config.stubs(:is_windows?).returns(false)
+          given_a_configuration_of(:is_windows => false)
         end
 
         it "should return the result of executing the code" do
@@ -490,14 +584,52 @@ describe Facter::Util::Resolution do
 
   # It's not possible, AFAICT, to mock %x{}, so I can't really test this bit.
   describe "when executing code" do
+    # set up some command strings, making sure we get the right version for both unix and windows
+    echo_command = Facter::Util::Config.is_windows? ? 'cmd.exe /c "echo foo"' : 'echo foo'
+    echo_env_var_command = Facter::Util::Config.is_windows? ? 'cmd.exe /c "echo %%%s%%"' : 'echo $%s'
+
     it "should deprecate the interpreter parameter" do
       Facter.expects(:warnonce).with("The interpreter parameter to 'exec' is deprecated and will be removed in a future version.")
       Facter::Util::Resolution.exec("/something", "/bin/perl")
     end
 
+    # execute a simple echo command
     it "should execute the binary" do
-      test_command = Facter::Util::Config.is_windows? ? 'cmd.exe /c echo foo' : 'echo foo'
-      Facter::Util::Resolution.exec(test_command).should == "foo"
+      Facter::Util::Resolution.exec(echo_command).should == "foo"
+    end
+
+    it "should override the LANG environment variable" do
+      Facter::Util::Resolution.exec(echo_env_var_command % 'LANG').should == "C"
+    end
+
+    it "should respect other overridden environment variables" do
+      Facter::Util::Resolution.with_env( {"FOO" => "foo"} ) do
+        Facter::Util::Resolution.exec(echo_env_var_command % 'FOO').should == "foo"
+      end
+    end
+
+    it "should restore overridden LANG environment variable after execution" do
+      # we're going to call with_env in a nested fashion, to make sure that the environment gets restored properly
+      # at each level
+      Facter::Util::Resolution.with_env( {"LANG" => "foo"} ) do
+        # Resolution.exec always overrides 'LANG' for its own execution scope
+        Facter::Util::Resolution.exec(echo_env_var_command % 'LANG').should == "C"
+        # But after 'exec' completes, we should see our value restored
+        ENV['LANG'].should == "foo"
+        # Now we'll do a nested call to with_env
+        Facter::Util::Resolution.with_env( {"LANG" => "bar"} ) do
+          # During 'exec' it should still be 'C'
+          Facter::Util::Resolution.exec(echo_env_var_command % 'LANG').should == "C"
+          # After exec it should be restored to our current value for this level of the nesting...
+          ENV['LANG'].should == "bar"
+        end
+        # Now we've dropped out of one level of nesting,
+        ENV['LANG'].should == "foo"
+        # Call exec one more time just for kicks
+        Facter::Util::Resolution.exec(echo_env_var_command % 'LANG').should == "C"
+        # One last check at our current nesting level.
+        ENV['LANG'].should == "foo"
+      end
     end
 
     context "when run on unix", :as_platform => :posix  do

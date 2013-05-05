@@ -20,6 +20,13 @@ end
 RSpec.configure do |config|
   config.mock_with :mocha
 
+  if Facter::Util::Config.is_windows?
+    require 'win32console'
+    config.output_stream = $stdout
+    config.error_stream = $stderr
+    config.formatters.each { |f| f.instance_variable_set(:@output, $stdout) }
+  end
+
   config.before :each do
     # Ensure that we don't accidentally cache facts and environment
     # between test cases.
@@ -37,5 +44,14 @@ RSpec.configure do |config|
     @old_env.each_pair {|k, v| ENV[k] = v}
     to_remove = ENV.keys.reject {|key| @old_env.include? key }
     to_remove.each {|key| ENV.delete key }
+  end
+end
+
+module FacterSpec
+  module ConfigHelper
+    def given_a_configuration_of(config)
+      Facter::Util::Config.stubs(:is_windows?).returns(config[:is_windows])
+      Facter::Util::Config.stubs(:external_facts_dir).returns(config[:external_facts_dir] || "data_dir")
+    end
   end
 end

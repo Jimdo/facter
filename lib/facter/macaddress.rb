@@ -8,6 +8,7 @@
 #
 
 require 'facter/util/macaddress'
+require 'facter/util/ip'
 
 Facter.add(:macaddress) do
   confine :kernel => 'Linux'
@@ -26,7 +27,8 @@ Facter.add(:macaddress) do
   confine :kernel => 'Linux'
   setcode do
     ether = []
-    output = Facter::Util::Resolution.exec("/sbin/ifconfig -a 2>/dev/null")
+    output = Facter::Util::IP.exec_ifconfig(["-a","2>/dev/null"])
+
     output.each_line do |s|
       ether.push($1) if s =~ /(?:ether|HWaddr) ((\w{1,2}:){5,}\w{1,2})/
     end
@@ -38,7 +40,7 @@ Facter.add(:macaddress) do
   confine :kernel => %w{SunOS GNU/kFreeBSD}
   setcode do
     ether = []
-    output = Facter::Util::Resolution.exec("/sbin/ifconfig -a")
+    output = Facter::Util::IP.exec_ifconfig(["-a"])
     output.each_line do |s|
       ether.push($1) if s =~ /(?:ether|HWaddr) ((\w{1,2}:){5,}\w{1,2})/
     end
@@ -47,7 +49,7 @@ Facter.add(:macaddress) do
 end
 
 Facter.add(:macaddress) do
-  confine :operatingsystem => "Solaris"
+  confine :osfamily => "Solaris"
   setcode do
     ether = []
     output = Facter::Util::Resolution.exec("/usr/bin/netstat -np")
@@ -62,7 +64,7 @@ Facter.add(:macaddress) do
   confine :operatingsystem => %w{FreeBSD OpenBSD DragonFly}
   setcode do
     ether = []
-    output = Facter::Util::Resolution.exec("/sbin/ifconfig")
+    output = Facter::Util::IP.exec_ifconfig
     output.each_line do |s|
       if s =~ /(?:ether|lladdr)\s+(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)/
         ether.push($1)
@@ -82,7 +84,7 @@ Facter.add(:macaddress) do
   setcode do
     ether = []
     ip = nil
-    output = %x{/usr/sbin/ifconfig -a}
+    output = Facter::Util::IP.exec_ifconfig(["-a"])
     output.each_line do |str|
       if str =~ /([a-z]+\d+): flags=/
         devname = $1

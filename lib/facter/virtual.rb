@@ -73,11 +73,15 @@ Facter.add("virtual") do
     end
 
     if Facter::Util::Virtual.xen?
-      if FileTest.exists?("/proc/xen/xsd_kva")
+      if FileTest.exists?("/dev/xen/evtchn")
         result = "xen0"
-      elsif FileTest.exists?("/proc/xen/capabilities")
+      elsif FileTest.exists?("/proc/xen")
         result = "xenu"
       end
+    end
+
+    if Facter::Util::Virtual.virtualbox?
+      result = "virtualbox"
     end
 
     if Facter::Util::Virtual.kvm?
@@ -86,6 +90,14 @@ Facter.add("virtual") do
 
     if ["FreeBSD", "GNU/kFreeBSD"].include? Facter.value(:kernel)
       result = "jail" if Facter::Util::Virtual.jail?
+    end
+
+    if Facter::Util::Virtual.rhev?
+      result = "rhev"
+    end
+
+    if Facter::Util::Virtual.ovirt?
+      result = "ovirt"
     end
 
     if result == "physical"
@@ -107,6 +119,9 @@ Facter.add("virtual") do
           # --- look for Hyper-V video card
           # ---   00:08.0 VGA compatible controller: Microsoft Corporation Hyper-V virtual VGA
           result = "hyperv" if p =~ /Microsoft Corporation Hyper-V/
+          # --- look for gmetrics for GCE
+          # --- 00:05.0 Class 8007: Google, Inc. Device 6442
+          result = "gce" if p =~ /Class 8007: Google, Inc/
         end
       else
         output = Facter::Util::Resolution.exec('dmidecode')
@@ -117,6 +132,8 @@ Facter.add("virtual") do
             result = "virtualbox" if pd =~ /VirtualBox/
             result = "xenhvm" if pd =~ /HVM domU/
             result = "hyperv" if pd =~ /Product Name: Virtual Machine/
+            result = "rhev" if pd =~ /Product Name: RHEV Hypervisor/
+            result = "ovirt" if pd =~ /Product Name: oVirt Node/
           end
         elsif Facter.value(:kernel) == 'SunOS'
           res = Facter::Util::Resolution.new('prtdiag')
@@ -153,6 +170,27 @@ Facter.add("virtual") do
   end
 end
 
+Facter.add("virtual") do
+  confine :kernel => "windows"
+  setcode do
+      require 'facter/util/wmi'
+      result = nil
+      Facter::Util::WMI.execquery("SELECT manufacturer, model FROM Win32_ComputerSystem").each do |computersystem|
+        result =
+          case computersystem.model
+          when /VirtualBox/ then "virtualbox"
+          when /Virtual Machine/
+            computersystem.manufacturer =~ /Microsoft/ ? "hyperv" : nil
+          when /VMware/ then "vmware"
+          when /KVM/ then "kvm"
+          else "physical"
+          end
+        break
+      end
+      result
+  end
+end
+
 ##
 # virtual fact based on virt-what command.
 #
@@ -168,24 +206,40 @@ Facter.add("virtual") do
   has_weight 500
 
   setcode do
-    output = Facter::Util::Virtual.virt_what
-    case output
-    when 'linux_vserver'
-      Facter::Util::Virtual.vserver_type
-    when /xen-hvm/i
-      'xenhvm'
-    when /xen-dom0/i
-      'xen0'
-    when /xen-domU/i
-      'xenu'
-    when /ibm_systemz/i
-      'zlinux'
-    else
-      output.to_s.split("\n").last
+    if output = Facter::Util::Virtual.virt_what
+      case output
+      when 'linux_vserver'
+        Facter::Util::Virtual.vserver_type
+      when /xen-hvm/i
+        'xenhvm'
+      when /xen-dom0/i
+        'xen0'
+      when /xen-domU/i
+        'xenu'
+      when /ibm_systemz/i
+        'zlinux'
+      else
+        output.to_s.split("\n").last
+      end
     end
   end
 end
 
+##
+# virtual fact specific to Google Compute Engine's Linux sysfs entry.
+Facter.add("virtual") do
+  has_weight 600
+  confine :kernel => "Linux"
+
+  setcode do
+    if dmi_data = Facter::Util::Virtual.read_sysfs_dmi_entries
+      case dmi_data
+      when /Google/
+        "gce"
+      end
+    end
+  end
+end
 # Fact: is_virtual
 #
 # Purpose: returning true or false for if a machine is virtualised or not.
@@ -198,7 +252,7 @@ end
 #
 
 Facter.add("is_virtual") do
-  confine :kernel => %w{Linux FreeBSD OpenBSD SunOS HP-UX Darwin GNU/kFreeBSD}
+  confine :kernel => %w{Linux FreeBSD OpenBSD SunOS HP-UX Darwin GNU/kFreeBSD windows}
 
   setcode do
     physical_types = %w{physical xen0 vmware_server vmware_workstation openvzhn}

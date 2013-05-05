@@ -10,6 +10,7 @@ require 'timeout'
 
 class Facter::Util::Resolution
   attr_accessor :interpreter, :code, :name, :timeout
+  attr_writer :value, :weight
 
   INTERPRETER = Facter::Util::Config.is_windows? ? "cmd.exe" : "/bin/sh"
 
@@ -108,6 +109,39 @@ class Facter::Util::Resolution
     end
   end
 
+  #
+  # Call this method with a block of code for which you would like to temporarily modify
+  # one or more environment variables; the specified values will be set for the duration
+  # of your block, after which the original values (if any) will be restored.
+  #
+  # [values] a Hash containing the key/value pairs of any environment variables that you
+  # would like to temporarily override
+  def self.with_env(values)
+    old = {}
+    values.each do |var, value|
+      # save the old value if it exists
+      if old_val = ENV[var]
+        old[var] = old_val
+      end
+      # set the new (temporary) value for the environment variable
+      ENV[var] = value
+    end
+    # execute the caller's block, capture the return value
+    rv = yield
+  # use an ensure block to make absolutely sure we restore the variables
+  ensure
+    # restore the old values
+    values.each do |var, value|
+      if old.include?(var)
+        ENV[var] = old[var]
+      else
+        # if there was no old value, delete the key from the current environment variables hash
+        ENV.delete(var)
+      end
+    end
+    # return the captured return value
+    rv
+  end
 
   # Execute a program and return the output of that program.
   #
@@ -117,33 +151,38 @@ class Facter::Util::Resolution
   def self.exec(code, interpreter = nil)
     Facter.warnonce "The interpreter parameter to 'exec' is deprecated and will be removed in a future version." if interpreter
 
-    if expanded_code = expand_command(code)
-      # if we can find the binary, we'll run the command with the expanded path to the binary
-      code = expanded_code
-    else
-      # if we cannot find the binary return nil on posix. On windows we'll still try to run the
-      # command in case it is a shell-builtin. In case it is not, windows will raise Errno::ENOENT
-      return nil unless Facter::Util::Config.is_windows?
-      return nil if absolute_path?(code)
-    end
+    ## Set LANG to force i18n to C for the duration of this exec; this ensures that any code that parses the
+    ## output of the command can expect it to be in a consistent / predictable format / locale
+    with_env "LANG" => "C" do
+      
+      if expanded_code = expand_command(code)
+        # if we can find the binary, we'll run the command with the expanded path to the binary
+        code = expanded_code
+      else
+        # if we cannot find the binary return nil on posix. On windows we'll still try to run the
+        # command in case it is a shell-builtin. In case it is not, windows will raise Errno::ENOENT
+        return nil unless Facter::Util::Config.is_windows?
+        return nil if absolute_path?(code)
+      end
+      
+      out = nil
 
-    out = nil
-
-    begin
-      out = %x{#{code}}.chomp
-      Facter.warnonce 'Using Facter::Util::Resolution.exec with a shell built-in is deprecated. Most built-ins can be replaced with native ruby commands. If you really have to run a built-in, pass "cmd /c your_builtin" as a command' unless expanded_code
-    rescue Errno::ENOENT => detail
-      # command not found on Windows
-      return nil
-    rescue => detail
-      $stderr.puts detail
-      return nil
-    end
-
-    if out == ""
-      return nil
-    else
-      return out
+      begin
+        out = %x{#{code}}.chomp
+        Facter.warnonce 'Using Facter::Util::Resolution.exec with a shell built-in is deprecated. Most built-ins can be replaced with native ruby commands. If you really have to run a built-in, pass "cmd /c your_builtin" as a command' unless expanded_code
+      rescue Errno::ENOENT => detail
+        # command not found on Windows
+        return nil
+      rescue => detail
+        $stderr.puts detail
+        return nil
+      end
+      
+      if out == ""
+        return nil
+      else
+        return out
+      end
     end
   end
 
@@ -197,6 +236,37 @@ class Facter::Util::Resolution
     end
   end
 
+  ##
+  # on_flush accepts a block and executes the block when the resolution's value
+  # is flushed.  This makes it possible to model a single, expensive system
+  # call inside of a Ruby object and then define multiple dynamic facts which
+  # resolve by sending messages to the model instance.  If one of the dynamic
+  # facts is flushed then it can, in turn, flush the data stored in the model
+  # instance to keep all of the dynamic facts in sync without making multiple,
+  # expensive, system calls.
+  #
+  # Please see the Solaris zones fact for an example of how this feature may be
+  # used.
+  #
+  # @see Facter::Util::Fact#flush
+  # @see Facter::Util::Resolution#flush
+  #
+  # @api public
+  def on_flush(&block)
+    @on_flush_block = block
+  end
+
+  ##
+  # flush executes the block, if any, stored by the {on_flush} method
+  #
+  # @see Facter::Util::Fact#flush
+  # @see Facter::Util::Resolution#on_flush
+  #
+  # @api private
+  def flush
+    @on_flush_block.call if @on_flush_block
+  end
+
   def interpreter
     Facter.warnonce "The 'Facter::Util::Resolution.interpreter' method is deprecated and will be removed in a future version."
     @interpreter
@@ -222,6 +292,7 @@ class Facter::Util::Resolution
 
   # How we get a value for our resolution mechanism.
   def value
+    return @value if @value
     result = nil
     return result if @code == nil
 
