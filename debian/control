@@ -18,7 +18,7 @@ Depends: ${misc:Depends},
  net-tools,
  ruby-json,
  ruby | ruby-interpreter,
-Recommends: pciutils, dmidecode
+Recommends: pciutils, dmidecode, virt-what
 Description: collect and display facts about the system
  A cross-platform Ruby library for retrieving facts from operating systems.
  Supports multiple resolution mechanisms, any of which can be restricted to
