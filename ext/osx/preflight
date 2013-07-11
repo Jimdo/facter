@@ -16,217 +16,217 @@
 # remove libdir
 
 
-/bin/rm -Rf "${3}/facter/fqdn.rb"
+/bin/rm -Rf "${3}/facter/util/loader.rb"
 
-/bin/rm -Rf "${3}/facter/lsbdistid.rb"
+/bin/rm -Rf "${3}/facter/util/uptime.rb"
 
-/bin/rm -Rf "${3}/facter/operatingsystemmajrelease.rb"
+/bin/rm -Rf "${3}/facter/util/virtual.rb"
 
-/bin/rm -Rf "${3}/facter/version.rb"
+/bin/rm -Rf "${3}/facter/util/netmask.rb"
 
-/bin/rm -Rf "${3}/facter/osfamily.rb"
+/bin/rm -Rf "${3}/facter/util/nothing_loader.rb"
 
-/bin/rm -Rf "${3}/facter/ipaddress6.rb"
+/bin/rm -Rf "${3}/facter/util/macaddress.rb"
 
-/bin/rm -Rf "${3}/facter/puppetversion.rb"
-
-/bin/rm -Rf "${3}/facter/rubysitedir.rb"
-
-/bin/rm -Rf "${3}/facter/iphostnumber.rb"
-
-/bin/rm -Rf "${3}/facter/util/solaris_zones.rb"
-
-/bin/rm -Rf "${3}/facter/util/file_read.rb"
-
-/bin/rm -Rf "${3}/facter/util/confine.rb"
+/bin/rm -Rf "${3}/facter/util/cfpropertylist/README"
 
 /bin/rm -Rf "${3}/facter/util/cfpropertylist/THANKS"
 
-/bin/rm -Rf "${3}/facter/util/cfpropertylist/Rakefile"
+/bin/rm -Rf "${3}/facter/util/cfpropertylist/lib/rbCFTypes.rb"
 
 /bin/rm -Rf "${3}/facter/util/cfpropertylist/lib/rbCFPlistError.rb"
 
-/bin/rm -Rf "${3}/facter/util/cfpropertylist/lib/rbLibXMLParser.rb"
+/bin/rm -Rf "${3}/facter/util/cfpropertylist/lib/rbBinaryCFPropertyList.rb"
 
 /bin/rm -Rf "${3}/facter/util/cfpropertylist/lib/rbCFPropertyList.rb"
-
-/bin/rm -Rf "${3}/facter/util/cfpropertylist/lib/cfpropertylist.rb"
 
 /bin/rm -Rf "${3}/facter/util/cfpropertylist/lib/rbNokogiriParser.rb"
 
 /bin/rm -Rf "${3}/facter/util/cfpropertylist/lib/rbREXMLParser.rb"
 
-/bin/rm -Rf "${3}/facter/util/cfpropertylist/lib/rbBinaryCFPropertyList.rb"
+/bin/rm -Rf "${3}/facter/util/cfpropertylist/lib/cfpropertylist.rb"
 
-/bin/rm -Rf "${3}/facter/util/cfpropertylist/lib/rbCFTypes.rb"
+/bin/rm -Rf "${3}/facter/util/cfpropertylist/lib/rbLibXMLParser.rb"
 
 /bin/rm -Rf "${3}/facter/util/cfpropertylist/LICENSE"
 
-/bin/rm -Rf "${3}/facter/util/cfpropertylist/README"
+/bin/rm -Rf "${3}/facter/util/cfpropertylist/Rakefile"
 
-/bin/rm -Rf "${3}/facter/util/ip.rb"
+/bin/rm -Rf "${3}/facter/util/xendomains.rb"
 
-/bin/rm -Rf "${3}/facter/util/vlans.rb"
+/bin/rm -Rf "${3}/facter/util/wmi.rb"
 
-/bin/rm -Rf "${3}/facter/util/resolution.rb"
-
-/bin/rm -Rf "${3}/facter/util/ec2.rb"
-
-/bin/rm -Rf "${3}/facter/util/plist/generator.rb"
-
-/bin/rm -Rf "${3}/facter/util/plist/parser.rb"
-
-/bin/rm -Rf "${3}/facter/util/composite_loader.rb"
-
-/bin/rm -Rf "${3}/facter/util/cfpropertylist.rb"
+/bin/rm -Rf "${3}/facter/util/file_read.rb"
 
 /bin/rm -Rf "${3}/facter/util/registry.rb"
 
-/bin/rm -Rf "${3}/facter/util/memory.rb"
+/bin/rm -Rf "${3}/facter/util/values.rb"
+
+/bin/rm -Rf "${3}/facter/util/parser.rb"
+
+/bin/rm -Rf "${3}/facter/util/vlans.rb"
+
+/bin/rm -Rf "${3}/facter/util/processor.rb"
 
 /bin/rm -Rf "${3}/facter/util/plist.rb"
+
+/bin/rm -Rf "${3}/facter/util/ec2.rb"
 
 /bin/rm -Rf "${3}/facter/util/manufacturer.rb"
 
 /bin/rm -Rf "${3}/facter/util/fact.rb"
 
+/bin/rm -Rf "${3}/facter/util/resolution.rb"
+
 /bin/rm -Rf "${3}/facter/util/collection.rb"
 
-/bin/rm -Rf "${3}/facter/util/netmask.rb"
+/bin/rm -Rf "${3}/facter/util/memory.rb"
+
+/bin/rm -Rf "${3}/facter/util/ip.rb"
+
+/bin/rm -Rf "${3}/facter/util/solaris_zones.rb"
+
+/bin/rm -Rf "${3}/facter/util/cfpropertylist.rb"
 
 /bin/rm -Rf "${3}/facter/util/config.rb"
 
-/bin/rm -Rf "${3}/facter/util/xendomains.rb"
-
-/bin/rm -Rf "${3}/facter/util/processor.rb"
-
-/bin/rm -Rf "${3}/facter/util/macosx.rb"
-
-/bin/rm -Rf "${3}/facter/util/wmi.rb"
-
-/bin/rm -Rf "${3}/facter/util/parser.rb"
-
-/bin/rm -Rf "${3}/facter/util/virtual.rb"
-
-/bin/rm -Rf "${3}/facter/util/values.rb"
-
-/bin/rm -Rf "${3}/facter/util/uptime.rb"
-
 /bin/rm -Rf "${3}/facter/util/monkey_patches.rb"
 
-/bin/rm -Rf "${3}/facter/util/nothing_loader.rb"
+/bin/rm -Rf "${3}/facter/util/plist/parser.rb"
+
+/bin/rm -Rf "${3}/facter/util/plist/generator.rb"
 
 /bin/rm -Rf "${3}/facter/util/directory_loader.rb"
 
-/bin/rm -Rf "${3}/facter/util/loader.rb"
+/bin/rm -Rf "${3}/facter/util/confine.rb"
 
-/bin/rm -Rf "${3}/facter/util/macaddress.rb"
+/bin/rm -Rf "${3}/facter/util/composite_loader.rb"
 
-/bin/rm -Rf "${3}/facter/ps.rb"
-
-/bin/rm -Rf "${3}/facter/vlans.rb"
-
-/bin/rm -Rf "${3}/facter/lsbdistrelease.rb"
-
-/bin/rm -Rf "${3}/facter/kernel.rb"
-
-/bin/rm -Rf "${3}/facter/zonename.rb"
-
-/bin/rm -Rf "${3}/facter/kernelversion.rb"
-
-/bin/rm -Rf "${3}/facter/ec2.rb"
-
-/bin/rm -Rf "${3}/facter/lsbdistdescription.rb"
-
-/bin/rm -Rf "${3}/facter/augeasversion.rb"
-
-/bin/rm -Rf "${3}/facter/ssh.rb"
-
-/bin/rm -Rf "${3}/facter/memory.rb"
+/bin/rm -Rf "${3}/facter/util/macosx.rb"
 
 /bin/rm -Rf "${3}/facter/lsbrelease.rb"
 
-/bin/rm -Rf "${3}/facter/manufacturer.rb"
+/bin/rm -Rf "${3}/facter/hardwareisa.rb"
 
-/bin/rm -Rf "${3}/facter/kernelrelease.rb"
-
-/bin/rm -Rf "${3}/facter/blockdevices.rb"
-
-/bin/rm -Rf "${3}/facter/hardwaremodel.rb"
-
-/bin/rm -Rf "${3}/facter/facterversion.rb"
-
-/bin/rm -Rf "${3}/facter/zfs_version.rb"
+/bin/rm -Rf "${3}/facter/zonename.rb"
 
 /bin/rm -Rf "${3}/facter/lsbdistcodename.rb"
 
-/bin/rm -Rf "${3}/facter/ldom.rb"
-
-/bin/rm -Rf "${3}/facter/architecture.rb"
-
-/bin/rm -Rf "${3}/facter/netmask.rb"
-
-/bin/rm -Rf "${3}/facter/filesystems.rb"
-
-/bin/rm -Rf "${3}/facter/id.rb"
-
-/bin/rm -Rf "${3}/facter/xendomains.rb"
+/bin/rm -Rf "${3}/facter/kernelmajversion.rb"
 
 /bin/rm -Rf "${3}/facter/uptime_seconds.rb"
 
-/bin/rm -Rf "${3}/facter/hardwareisa.rb"
-
 /bin/rm -Rf "${3}/facter/interfaces.rb"
 
-/bin/rm -Rf "${3}/facter/zones.rb"
+/bin/rm -Rf "${3}/facter/augeasversion.rb"
 
-/bin/rm -Rf "${3}/facter/processor.rb"
-
-/bin/rm -Rf "${3}/facter/lsbmajdistrelease.rb"
-
-/bin/rm -Rf "${3}/facter/macosx.rb"
-
-/bin/rm -Rf "${3}/facter/zpool_version.rb"
-
-/bin/rm -Rf "${3}/facter/Cfkey.rb"
-
-/bin/rm -Rf "${3}/facter/network.rb"
-
-/bin/rm -Rf "${3}/facter/uniqueid.rb"
-
-/bin/rm -Rf "${3}/facter/virtual.rb"
-
-/bin/rm -Rf "${3}/facter/hostname.rb"
-
-/bin/rm -Rf "${3}/facter/kernelmajversion.rb"
-
-/bin/rm -Rf "${3}/facter/domain.rb"
+/bin/rm -Rf "${3}/facter/ipaddress6.rb"
 
 /bin/rm -Rf "${3}/facter/uptime.rb"
 
-/bin/rm -Rf "${3}/facter/path.rb"
+/bin/rm -Rf "${3}/facter/virtual.rb"
 
-/bin/rm -Rf "${3}/facter/uptime_hours.rb"
-
-/bin/rm -Rf "${3}/facter/application.rb"
-
-/bin/rm -Rf "${3}/facter/operatingsystemrelease.rb"
-
-/bin/rm -Rf "${3}/facter/rubyversion.rb"
-
-/bin/rm -Rf "${3}/facter/uptime_days.rb"
-
-/bin/rm -Rf "${3}/facter/ipaddress.rb"
-
-/bin/rm -Rf "${3}/facter/timezone.rb"
+/bin/rm -Rf "${3}/facter/operatingsystem.rb"
 
 /bin/rm -Rf "${3}/facter/physicalprocessorcount.rb"
 
-/bin/rm -Rf "${3}/facter/macaddress.rb"
+/bin/rm -Rf "${3}/facter/ldom.rb"
+
+/bin/rm -Rf "${3}/facter/blockdevices.rb"
+
+/bin/rm -Rf "${3}/facter/netmask.rb"
+
+/bin/rm -Rf "${3}/facter/version.rb"
+
+/bin/rm -Rf "${3}/facter/uptime_days.rb"
+
+/bin/rm -Rf "${3}/facter/uptime_hours.rb"
+
+/bin/rm -Rf "${3}/facter/operatingsystemrelease.rb"
 
 /bin/rm -Rf "${3}/facter/selinux.rb"
 
-/bin/rm -Rf "${3}/facter/operatingsystem.rb"
+/bin/rm -Rf "${3}/facter/kernelversion.rb"
+
+/bin/rm -Rf "${3}/facter/macaddress.rb"
+
+/bin/rm -Rf "${3}/facter/xendomains.rb"
+
+/bin/rm -Rf "${3}/facter/hostname.rb"
+
+/bin/rm -Rf "${3}/facter/rubyversion.rb"
+
+/bin/rm -Rf "${3}/facter/path.rb"
+
+/bin/rm -Rf "${3}/facter/zones.rb"
+
+/bin/rm -Rf "${3}/facter/operatingsystemmajrelease.rb"
+
+/bin/rm -Rf "${3}/facter/vlans.rb"
+
+/bin/rm -Rf "${3}/facter/application.rb"
+
+/bin/rm -Rf "${3}/facter/processor.rb"
+
+/bin/rm -Rf "${3}/facter/id.rb"
+
+/bin/rm -Rf "${3}/facter/fqdn.rb"
+
+/bin/rm -Rf "${3}/facter/ec2.rb"
+
+/bin/rm -Rf "${3}/facter/architecture.rb"
+
+/bin/rm -Rf "${3}/facter/ssh.rb"
+
+/bin/rm -Rf "${3}/facter/ipaddress.rb"
+
+/bin/rm -Rf "${3}/facter/uniqueid.rb"
+
+/bin/rm -Rf "${3}/facter/manufacturer.rb"
+
+/bin/rm -Rf "${3}/facter/kernel.rb"
+
+/bin/rm -Rf "${3}/facter/kernelrelease.rb"
+
+/bin/rm -Rf "${3}/facter/timezone.rb"
+
+/bin/rm -Rf "${3}/facter/puppetversion.rb"
+
+/bin/rm -Rf "${3}/facter/rubysitedir.rb"
+
+/bin/rm -Rf "${3}/facter/facterversion.rb"
+
+/bin/rm -Rf "${3}/facter/filesystems.rb"
+
+/bin/rm -Rf "${3}/facter/lsbdistid.rb"
+
+/bin/rm -Rf "${3}/facter/memory.rb"
+
+/bin/rm -Rf "${3}/facter/lsbdistdescription.rb"
+
+/bin/rm -Rf "${3}/facter/network.rb"
+
+/bin/rm -Rf "${3}/facter/zpool_version.rb"
+
+/bin/rm -Rf "${3}/facter/zfs_version.rb"
+
+/bin/rm -Rf "${3}/facter/domain.rb"
+
+/bin/rm -Rf "${3}/facter/lsbdistrelease.rb"
+
+/bin/rm -Rf "${3}/facter/Cfkey.rb"
+
+/bin/rm -Rf "${3}/facter/osfamily.rb"
+
+/bin/rm -Rf "${3}/facter/ps.rb"
+
+/bin/rm -Rf "${3}/facter/hardwaremodel.rb"
+
+/bin/rm -Rf "${3}/facter/macosx.rb"
+
+/bin/rm -Rf "${3}/facter/lsbmajdistrelease.rb"
+
+/bin/rm -Rf "${3}/facter/iphostnumber.rb"
 
 /bin/rm -Rf "${3}/facter.rb"
 
