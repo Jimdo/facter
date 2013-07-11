@@ -1,8 +1,8 @@
-facter (1.7.0-1puppetlabs1) hardy lucid oneiric unstable sid wheezy lucid squeeze precise quantal; urgency=low
+facter (1.7.2-1puppetlabs1) hardy lucid oneiric unstable sid wheezy lucid squeeze precise quantal; urgency=low
 
   * Update to version 
 
- -- Puppet Labs Release <info@puppetlabs.com>  Mon, 15 Apr 2013 11:13:19 -0700
+ -- Puppet Labs Release <info@puppetlabs.com>  Wed, 10 Jul 2013 23:00:17 +0000
 
 facter (1.7.0-0.1rc1puppetlabs1) hardy lucid oneiric unstable sid wheezy lucid squeeze precise; urgency=low
 
