@@ -1,2 +1,3 @@
 version=3
-http://reductivelabs.com/downloads/facter/facter-([0-9]+\.[0-9]+\.[0-9]+)\.tar\.gz
+opts=uversionmangle=s{(.*(?:alpha|beta|rc).*)}{~$1} \
+http://downloads.puppetlabs.com/facter/facter-(\S+)\.tar\.gz
