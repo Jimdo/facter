@@ -1,8 +1,8 @@
-facter (1.7.2-1) UNRELEASED; urgency=low
+facter (1.7.2-1) unstable; urgency=low
 
   * Imported upstream version 1.7.2
 
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Thu, 11 Jul 2013 11:14:53 +0200
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Sun, 01 Sep 2013 13:03:51 +0200
 
 facter (1.7.0-1) unstable; urgency=low
 
