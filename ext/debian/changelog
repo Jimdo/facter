@@ -1,8 +1,14 @@
-facter (1.7.2-1puppetlabs1) hardy lucid oneiric unstable sid wheezy lucid squeeze precise quantal; urgency=low
+facter (1.7.3-1puppetlabs1) lucid unstable sid wheezy lucid squeeze precise quantal raring; urgency=low
 
   * Update to version 
 
- -- Puppet Labs Release <info@puppetlabs.com>  Wed, 10 Jul 2013 23:00:17 +0000
+ -- Puppet Labs Release <info@puppetlabs.com>  Mon, 09 Sep 2013 16:24:04 -0700
+
+facter (1.7.2-1puppetlabs2) lucid unstable sid wheezy lucid squeeze precise; urgency=low
+
+  * Remove dependenices on libssl-ruby from facter as they are not used
+
+ -- Matthaus Owens <matthaus@puppetlabs.com>  Thu, 11 Jul 2013 13:11:30 +0000
 
 facter (1.7.0-0.1rc1puppetlabs1) hardy lucid oneiric unstable sid wheezy lucid squeeze precise; urgency=low
 

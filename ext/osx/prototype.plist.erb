@@ -3,15 +3,15 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleIdentifier</key>
-	<string></string>
+	<string><%= @title %></string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.7.2</string>
+	<string><%= @version %></string>
 	<key>IFMajorVersion</key>
-	<integer></integer>
+	<integer><%= @package_major_version %></integer>
 	<key>IFMinorVersion</key>
-	<integer></integer>
+	<integer><%= @package_minor_version %></integer>
 	<key>IFPkgBuildDate</key>
-	<date></date>
+	<date><%= @build_date %></date>
 	<key>IFPkgFlagAllowBackRev</key>
 	<false/>
 	<key>IFPkgFlagAuthorizationAction</key>
@@ -29,7 +29,7 @@
 	<key>IFPkgFlagRelocatable</key>
 	<false/>
 	<key>IFPkgFlagRestartAction</key>
-	<string></string>
+	<string><%= @pm_restart %></string>
 	<key>IFPkgFlagRootVolumeOnly</key>
 	<true/>
 	<key>IFPkgFlagUpdateInstalledLanguages</key>

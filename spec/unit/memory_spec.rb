@@ -3,15 +3,15 @@
 require 'spec_helper'
 
 describe "Memory facts" do
-  after do
+  before(:each) do
+    Facter.collection.internal_loader.load(:memory)
+  end
+
+  after(:each) do
     Facter.clear
   end
 
   describe "when returning scaled sizes" do
-    before(:each) do
-      Facter.collection.internal_loader.load(:memory)
-    end
-
     [  "memorysize",
        "memoryfree",
        "swapsize",
@@ -46,6 +46,7 @@ describe "Memory facts" do
 
   describe "on Darwin" do
     before(:each) do
+      Facter.clear
       Facter.fact(:kernel).stubs(:value).returns("Darwin")
       Facter::Util::Resolution.stubs(:exec).with('sysctl -n hw.memsize').returns('8589934592')
       sample_vm_stat = <<VMSTAT
@@ -515,8 +516,8 @@ SWAP
   end
 
   it "should use the memorysize fact for the memorytotal fact" do
-    Facter.fact("memorysize").expects(:value).once.returns "yay"
+    Facter.fact("memorysize").expects(:value).once.returns "16.00 GB"
     Facter::Util::Resolution.expects(:exec).never
-    Facter.fact("memorytotal").value.should == "yay"
+    Facter.fact(:memorytotal).value.should == "16.00 GB"
   end
 end
