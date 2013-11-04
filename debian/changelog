@@ -1,3 +1,11 @@
+facter (1.7.3-1) unstable; urgency=low
+
+  * Imported upstream version 1.7.3
+  * Bump standards version (no changes)
+  * Update copyright format URI
+
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Mon, 04 Nov 2013 15:57:00 +0100
+
 facter (1.7.2-1) unstable; urgency=low
 
   * Imported upstream version 1.7.2
