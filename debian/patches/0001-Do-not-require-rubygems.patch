@@ -1,14 +1,17 @@
-Description: No require rubygems
-Subject: Do not require rubygems
- We do not require rubygems; the apt repository should contain all
- dependencies.
-Forwarded: not-needed
 From: Stig Sandbeck Mathisen <ssm@debian.org>
+Date: Sun, 6 Apr 2014 23:46:43 +0200
+Subject: Do not require rubygems
+
+---
+ bin/facter | 11 -----------
+ 1 file changed, 11 deletions(-)
+
+diff --git a/bin/facter b/bin/facter
+index 0616157..a25fa03 100755
 --- a/bin/facter
 +++ b/bin/facter
-@@ -58,17 +58,6 @@
- # Copyright (c) 2011 Puppet Labs, Inc
- # Licensed under the Apache 2.0 license
+@@ -1,16 +1,5 @@
+ #!/usr/bin/env ruby
  
 -# Bundler and rubygems maintain a set of directories from which to
 -# load gems. If Bundler is loaded, let it determine what can be
