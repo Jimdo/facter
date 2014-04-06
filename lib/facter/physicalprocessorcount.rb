@@ -39,7 +39,7 @@ Facter.add('physicalprocessorcount') do
       lookup_pattern = "#{sysfs_cpu_directory}" +
         "/cpu*/topology/physical_package_id"
 
-      Dir.glob(lookup_pattern).collect { |f| Facter::Util::Resolution.exec("cat #{f}")}.uniq.size
+      Dir.glob(lookup_pattern).collect { |f| Facter::Core::Execution.exec("cat #{f}")}.uniq.size.to_s
 
     else
       #
@@ -48,9 +48,9 @@ Facter.add('physicalprocessorcount') do
       # We assume that /proc/cpuinfo has what we need and is so then we need
       # to make sure that we only count unique entries ...
       #
-      str = Facter::Util::Resolution.exec("grep 'physical.\\+:' /proc/cpuinfo")
+      str = Facter::Core::Execution.exec("grep 'physical.\\+:' /proc/cpuinfo")
 
-      if str then str.scan(/\d+/).uniq.size; end
+      if str then str.scan(/\d+/).uniq.size.to_s; end
     end
   end
 end
@@ -59,26 +59,24 @@ Facter.add('physicalprocessorcount') do
   confine :kernel => :windows
   setcode do
     require 'facter/util/wmi'
-    Facter::Util::WMI.execquery("select Name from Win32_Processor").Count
+    Facter::Util::WMI.execquery("select Name from Win32_Processor").Count.to_s
   end
 end
 
 Facter.add('physicalprocessorcount') do
   confine :kernel => :sunos
 
+  # (#16526) The -p flag was not added until Solaris 8.  Our intent is to
+  # split the kernel release fact value on the dot, take the second element,
+  # and disable the -p flag for values < 8 when.
   setcode do
-    # (#16526) The -p flag was not added until Solaris 8.  Our intent is to
-    # split the kernel release fact value on the dot, take the second element,
-    # and disable the -p flag for values < 8 when.
     kernelrelease = Facter.value(:kernelrelease)
     (major_version, minor_version) = kernelrelease.split(".").map { |str| str.to_i }
-    cmd = "/usr/sbin/psrinfo"
-    result = nil
     if (major_version > 5) or (major_version == 5 and minor_version >= 8) then
-      result = Facter::Util::Resolution.exec("#{cmd} -p")
+      Facter::Core::Execution.exec("/usr/sbin/psrinfo -p")
     else
-      output = Facter::Util::Resolution.exec(cmd)
-      result = output.split("\n").length.to_s
+      output = Facter::Core::Execution.exec("/usr/sbin/psrinfo")
+      output.split("\n").length.to_s
     end
   end
 end

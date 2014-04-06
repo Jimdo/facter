@@ -1,3 +1,7 @@
+require 'optparse'
+require 'facter'
+require 'facter/util/formatter'
+
 module Facter
   module Application
 
@@ -7,7 +11,7 @@ module Facter
       begin
         Facter::Util::Config.ext_fact_loader = Facter::Util::DirectoryLoader.loader_for(dir)
       rescue Facter::Util::DirectoryLoader::NoSuchDirectoryError => error
-        $stderr.puts "Specified external facts directory #{dir} does not exist."
+        Facter.log_exception(error, "Specified external facts directory #{dir} does not exist.")
         exit(1)
       end
     end
@@ -17,9 +21,6 @@ module Facter
     end
 
     def self.run(argv)
-      require 'optparse'
-      require 'facter'
-
       options = parse(argv)
 
       # Accept fact names to return from the command line
@@ -35,8 +36,8 @@ module Facter
           begin
             facts[name] = Facter.value(name)
           rescue => error
-            $stderr.puts "Could not retrieve #{name}: #{error}"
-            exit 10
+            Facter.log_exception(error, "Could not retrieve #{name}: #{error.message}")
+            exit(10)
           end
         end
       end
@@ -44,44 +45,24 @@ module Facter
       # Print everything if they didn't ask for specific facts.
       facts ||= Facter.to_hash
 
-      # Print the facts as YAML and exit
+      output = nil
+
       if options[:yaml]
-        require 'yaml'
-        puts YAML.dump(facts)
-        exit(0)
-      end
-
-      # Print the facts as JSON and exit
-      if options[:json]
-        begin
-          require 'json'
-          puts JSON.dump(facts)
-          exit(0)
-        rescue LoadError
-          $stderr.puts "You do not have JSON support in your version of Ruby. JSON output disabled"
-          exit(1)
-        end
-      end
-
-      # Print the value of a single fact, otherwise print a list sorted by fact
-      # name and separated by "=>"
-      if facts.length == 1
-        if value = facts.values.first
-          puts value
-        end
+        output = Facter::Util::Formatter.format_yaml(facts)
+      elsif options[:json]
+        output = Facter::Util::Formatter.format_json(facts)
+      elsif options[:plaintext]
+        output = Facter::Util::Formatter.format_plaintext(facts)
       else
-        facts.sort_by{ |fact| fact.first }.each do |name,value|
-          puts "#{name} => #{value}"
-        end
+        output = Facter::Util::Formatter.format_plaintext(facts)
       end
+
+      puts output
+      exit(0)
 
     rescue => e
-      if options && options[:trace]
-        raise e
-      else
-        $stderr.puts "Error: #{e}"
-        exit(12)
-      end
+      Facter.log_exception(e)
+      exit(12)
     end
 
     private
@@ -93,35 +74,110 @@ module Facter
     # @return [Hash] options hash
     def self.parse(argv)
       options = {}
-      OptionParser.new do |opts|
-        opts.on("-y", "--yaml")   { |v| options[:yaml]   = v }
-        opts.on("-j", "--json")   { |v| options[:json]   = v }
-        opts.on(      "--trace")  { |v| options[:trace]  = v }
-        opts.on(      "--external-dir DIR") { |v| create_directory_loader(v) }
-        opts.on(      "--no-external-dir") { |v| create_nothing_loader }
-        opts.on("-d", "--debug")  { |v| Facter.debugging(1) }
-        opts.on("-t", "--timing") { |v| Facter.timing(1) }
-        opts.on("-p", "--puppet") { |v| load_puppet }
+      parser = OptionParser.new do |opts|
+        opts.banner = <<-BANNER
+facter(8) -- Gather system information
+======
 
-        opts.on_tail("-v", "--version") do
+SYNOPSIS
+--------
+
+Collect and display facts about the system.
+
+USAGE
+-----
+
+    facter [-h|--help] [-t|--timing] [-d|--debug] [-p|--puppet] [-v|--version]
+      [-y|--yaml] [-j|--json] [--plaintext] [--external-dir DIR] [--no-external-dir]
+      [fact] [fact] [...]
+
+DESCRIPTION
+-----------
+
+Collect and display facts about the current system.  The library behind
+Facter is easy to expand, making Facter an easy way to collect information
+about a system from within the shell or within Ruby.
+
+If no facts are specifically asked for, then all facts will be returned.
+
+EXAMPLE
+-------
+
+Display all facts:
+
+    $ facter
+    architecture => amd64
+    blockdevices => sda,sr0
+    domain => example.com
+    fqdn => puppet.example.com
+    hardwaremodel => x86_64
+    [...]
+
+Display a single fact:
+
+    $ facter kernel
+    Linux
+
+Format facts as JSON:
+
+    $ facter --json architecture kernel hardwaremodel
+    {
+      "architecture": "amd64",
+      "kernel": "Linux",
+      "hardwaremodel": "x86_64"
+    }
+
+AUTHOR
+------
+  Luke Kanies
+
+COPYRIGHT
+---------
+  Copyright (c) 2011-2014 Puppet Labs, Inc Licensed under the Apache 2.0 license
+
+OPTIONS
+-------
+        BANNER
+        opts.on("-y",
+                "--yaml",
+                "Emit facts in YAML format.")   { |v| options[:yaml]   = v }
+        opts.on("-j",
+                "--json",
+                "Emit facts in JSON format.")   { |v| options[:json]   = v }
+        opts.on("--plaintext",
+                "Emit facts in plaintext format.") { |v| options[:plaintext] = v }
+        opts.on("--trace",
+                "Enable backtraces.")  { |v| Facter.trace(true) }
+        opts.on("--external-dir DIR",
+                "The directory to use for external facts.") { |v| create_directory_loader(v) }
+        opts.on("--no-external-dir",
+                "Turn off external facts.") { |v| create_nothing_loader }
+        opts.on("-d",
+                "--debug",
+                "Enable debugging.")  { |v| Facter.debugging(1) }
+        opts.on("-t",
+                "--timing",
+                "Enable timing.") { |v| Facter.timing(1) }
+        opts.on("-p",
+                "--puppet",
+                "Load the Puppet libraries, thus allowing Facter to load Puppet-specific facts.") { |v| load_puppet }
+
+        opts.on_tail("-v",
+                     "--version",
+                     "Print the version and exit.") do
           puts Facter.version
           exit(0)
         end
 
-        opts.on_tail("-h", "--help") do
-          begin
-            require 'rdoc/ri/ri_paths'
-            require 'rdoc/usage'
-            RDoc.usage # print usage and exit
-          rescue LoadError
-            $stderr.puts "No help available unless your RDoc has RDoc.usage"
-            exit(1)
-          rescue => e
-            $stderr.puts "fatal: #{e}"
-            exit(1)
-          end
+        opts.on_tail("-h",
+                     "--help",
+                     "Print this help message.") do
+          puts parser
+          exit(0)
         end
-      end.parse!(argv)
+      end
+
+      parser.parse!(argv)
 
       options
     rescue OptionParser::InvalidOption => e

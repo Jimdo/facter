@@ -51,7 +51,7 @@ describe "Operating System Release fact" do
     Facter.fact(:kernelrelease).stubs(:value).returns("4.1.0")
     Facter.fact(:operatingsystem).stubs(:value).returns("VMwareESX")
 
-    Facter::Util::Resolution.stubs(:exec).with('vmware -v').returns('foo')
+    Facter::Core::Execution.stubs(:exec).with('vmware -v').returns('foo')
 
     Facter.fact(:operatingsystemrelease).value
   end
@@ -119,6 +119,8 @@ describe "Operating System Release fact" do
       'Solaris 10 10/09 s10x_u8wos_08a X86'          => '10_u8',
       'Oracle Solaris 10 9/10 s10x_u9wos_14a X86'    => '10_u9',
       'Oracle Solaris 10 8/11 s10x_u10wos_17b X86'   => '10_u10',
+      'Oracle Solaris 11 11/11 X86'                  => '11 11/11',
+      'Oracle Solaris 11.1 SPARC'                    => '11.1'
     }.each do |fakeinput,expected_output|
       it "should be able to parse a release of #{fakeinput}" do
         Facter::Util::FileRead.stubs(:read).with('/etc/release').returns fakeinput
@@ -127,12 +129,10 @@ describe "Operating System Release fact" do
     end
 
     context "malformed /etc/release files" do
-      before :each do
-        Facter::Util::Resolution.any_instance.stubs(:warn)
-      end
       it "should fallback to the kernelrelease fact if /etc/release is empty" do
         Facter::Util::FileRead.stubs(:read).with('/etc/release').
           raises EOFError
+        Facter.expects(:warn).with(regexp_matches(/Could not retrieve fact='operatingsystemrelease'.*EOFError/))
         Facter.fact(:operatingsystemrelease).value.
           should == Facter.fact(:kernelrelease).value
       end
@@ -140,6 +140,7 @@ describe "Operating System Release fact" do
       it "should fallback to the kernelrelease fact if /etc/release is not present" do
         Facter::Util::FileRead.stubs(:read).with('/etc/release').
           raises Errno::ENOENT
+        Facter.expects(:warn).with(regexp_matches(/Could not retrieve fact='operatingsystemrelease'.*No such file or directory/))
         Facter.fact(:operatingsystemrelease).value.
           should == Facter.fact(:kernelrelease).value
       end
@@ -153,15 +154,74 @@ describe "Operating System Release fact" do
     end
   end
 
+  describe "with operatingsystem reported as Windows" do
+    require 'facter/util/wmi'
+    before do
+      Facter.fact(:kernel).stubs(:value).returns("windows")
+    end
+
+    {
+      ['5.2.3790', 1] => "XP",
+      ['6.0.6002', 1] => "Vista",
+      ['6.0.6002', 2] => "2008",
+      ['6.0.6002', 3] => "2008",
+      ['6.1.7601', 1] => "7",
+      ['6.1.7601', 2] => "2008 R2",
+      ['6.1.7601', 3] => "2008 R2",
+      ['6.2.9200', 1] => "8",
+      ['6.2.9200', 2] => "2012",
+      ['6.2.9200', 3] => "2012",
+    }.each do |os_values, expected_output|
+      it "should be #{expected_output}  with Version #{os_values[0]}  and ProductType #{os_values[1]}" do
+        os = mock('os', :version => os_values[0], :producttype => os_values[1])
+        Facter::Util::WMI.expects(:execquery).returns([os])
+        Facter.fact(:operatingsystemrelease).value.should == expected_output
+      end
+    end
+
+    {
+      ['5.2.3790', 2, ""]   => "2003",
+      ['5.2.3790', 2, "R2"] => "2003 R2",
+      ['5.2.3790', 3, ""]   => "2003",
+      ['5.2.3790', 3, "R2"] => "2003 R2",
+    }.each do |os_values, expected_output|
+      it "should be #{expected_output}  with Version #{os_values[0]}  and ProductType #{os_values[1]} and OtherTypeDescription #{os_values[2]}" do
+        os = mock('os', :version => os_values[0], :producttype => os_values[1], :othertypedescription => os_values[2])
+        Facter::Util::WMI.expects(:execquery).returns([os])
+        Facter.fact(:operatingsystemrelease).value.should == expected_output
+      end
+    end
+
+    it "reports '2003' if the WMI method othertypedescription does not exist" do
+      os = mock('os', :version => '5.2.3790', :producttype => 2)
+      os.stubs(:othertypedescription).raises(NoMethodError)
+
+      Facter::Util::WMI.expects(:execquery).returns([os])
+      Facter.fact(:operatingsystemrelease).value.should == '2003'
+    end
+
+    context "Unknown Windows version" do
+      before :each do
+        Facter.fact(:kernelrelease).stubs(:value).returns("X.Y.ZZZZ")
+      end
+
+      it "should be kernel version value with unknown values " do
+        os = mock('os', :version => "X.Y.ZZZZ")
+        Facter::Util::WMI.expects(:execquery).returns([os])
+        Facter.fact(:operatingsystemrelease).value.should == "X.Y.ZZZZ"
+      end
+    end
+  end
+
   context "Ubuntu" do
-    let(:issue) { "Ubuntu 10.04.4 LTS \\n \\l\n\n" }
+    let(:lsbrelease) { 'DISTRIB_ID=Ubuntu\nDISTRIB_RELEASE=10.04\nDISTRIB_CODENAME=lucid\nDISTRIB_DESCRIPTION="Ubuntu 10.04.4 LTS"'}
     before :each do
       Facter.fact(:kernel).stubs(:value).returns("Linux")
       Facter.fact(:operatingsystem).stubs(:value).returns("Ubuntu")
     end
 
     it "Returns only the major and minor version (not patch version)" do
-      Facter::Util::FileRead.stubs(:read).with("/etc/issue").returns(issue)
+      Facter::Util::FileRead.stubs(:read).with("/etc/lsb-release").returns(lsbrelease)
       Facter.fact(:operatingsystemrelease).value.should == "10.04"
     end
   end

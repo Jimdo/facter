@@ -55,13 +55,12 @@ end
 Facter.add("virtual") do
   confine :kernel => 'SunOS'
   has_weight 10
+  self.timeout = 6
+
   setcode do
     next "zone" if Facter::Util::Virtual.zone?
 
-    resolver = Facter::Util::Resolution.new('prtdiag')
-    resolver.timeout = 6
-    resolver.setcode('prtdiag')
-    output = resolver.value
+    output = Facter::Core::Execution.exec('prtdiag')
     if output
       lines = output.split("\n")
       next "parallels"  if lines.any? {|l| l =~ /Parallels/ }
@@ -92,7 +91,7 @@ Facter.add("virtual") do
   confine :kernel => 'OpenBSD'
   has_weight 10
   setcode do
-    output = Facter::Util::Resolution.exec('sysctl -n hw.product 2>/dev/null')
+    output = Facter::Core::Execution.exec('sysctl -n hw.product 2>/dev/null')
     if output
       lines = output.split("\n")
       next "parallels"  if lines.any? {|l| l =~ /Parallels/ }
@@ -133,7 +132,7 @@ Facter.add("virtual") do
     end
 
     # Parse dmidecode
-    output = Facter::Util::Resolution.exec('dmidecode')
+    output = Facter::Core::Execution.exec('dmidecode 2> /dev/null')
     if output
       lines = output.split("\n")
       next "parallels"  if lines.any? {|l| l =~ /Parallels/ }
@@ -145,15 +144,23 @@ Facter.add("virtual") do
       next "ovirt"      if lines.any? {|l| l =~ /Product Name: oVirt Node/ }
     end
 
+    # Default to 'physical'
+    next 'physical'
+  end
+end
+
+Facter.add("virtual") do
+  confine do
+    Facter::Core::Execution.which('vmware')
+  end
+
+  setcode do
     # Sample output of vmware -v `VMware Server 1.0.5 build-80187`
-    output = Facter::Util::Resolution.exec("vmware -v")
+    output = Facter::Core::Execution.exec("vmware -v")
     if output
       mdata = output.match /(\S+)\s+(\S+)/
       next "#{mdata[1]}_#{mdata[2]}".downcase if mdata
     end
-
-    # Default to 'physical'
-    next 'physical'
   end
 end
 
@@ -163,17 +170,27 @@ Facter.add("virtual") do
       require 'facter/util/wmi'
       result = nil
       Facter::Util::WMI.execquery("SELECT manufacturer, model FROM Win32_ComputerSystem").each do |computersystem|
-        result =
-          case computersystem.model
-          when /VirtualBox/ then "virtualbox"
-          when /Virtual Machine/
-            computersystem.manufacturer =~ /Microsoft/ ? "hyperv" : nil
-          when /VMware/ then "vmware"
-          when /KVM/ then "kvm"
-          else "physical"
-          end
+        case computersystem.model
+        when /VirtualBox/
+          result = "virtualbox"
+        when /Virtual Machine/
+          result = "hyperv" if computersystem.manufacturer =~ /Microsoft/
+        when /VMware/
+          result = "vmware"
+        when /KVM/
+          result = "kvm"
+        when /Bochs/
+          result = "bochs"
+        end
+
+        if result.nil? and computersystem.manufacturer =~ /Xen/
+          result = "xen"
+        end
+
         break
       end
+      result ||= "physical"
+
       result
   end
 end
@@ -242,7 +259,7 @@ Facter.add("is_virtual") do
   confine :kernel => %w{Linux FreeBSD OpenBSD SunOS HP-UX Darwin GNU/kFreeBSD windows}
 
   setcode do
-    physical_types = %w{physical xen0 vmware_server vmware_workstation openvzhn}
+    physical_types = %w{physical xen0 vmware_server vmware_workstation openvzhn vserver_host}
 
     if physical_types.include? Facter.value(:virtual)
       "false"

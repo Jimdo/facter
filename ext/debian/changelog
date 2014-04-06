@@ -1,8 +1,8 @@
-facter (1.7.3-1puppetlabs1) lucid unstable sid wheezy lucid squeeze precise quantal raring; urgency=low
+facter (2.0.1-1puppetlabs1) lucid unstable sid wheezy lucid squeeze precise quantal raring; urgency=low
 
   * Update to version 
 
- -- Puppet Labs Release <info@puppetlabs.com>  Mon, 09 Sep 2013 16:24:04 -0700
+ -- Puppet Labs Release <info@puppetlabs.com>  Tue, 01 Apr 2014 10:23:07 -0700
 
 facter (1.7.2-1puppetlabs2) lucid unstable sid wheezy lucid squeeze precise; urgency=low
 
