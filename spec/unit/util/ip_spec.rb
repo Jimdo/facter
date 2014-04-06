@@ -401,21 +401,25 @@ describe Facter::Util::IP do
 
   describe "exec_ifconfig" do
     it "uses get_ifconfig" do
+      Facter::Core::Execution.stubs(:exec)
+
       Facter::Util::IP.stubs(:get_ifconfig).returns("/sbin/ifconfig").once
 
       Facter::Util::IP.exec_ifconfig
     end
+
     it "support additional arguments" do
       Facter::Util::IP.stubs(:get_ifconfig).returns("/sbin/ifconfig")
 
-      Facter::Util::Resolution.stubs(:exec).with("/sbin/ifconfig -a")
+      Facter::Core::Execution.stubs(:exec).with("/sbin/ifconfig -a")
 
       Facter::Util::IP.exec_ifconfig(["-a"])
     end
+
     it "joins multiple arguments correctly" do
       Facter::Util::IP.stubs(:get_ifconfig).returns("/sbin/ifconfig")
 
-      Facter::Util::Resolution.stubs(:exec).with("/sbin/ifconfig -a -e -i -j")
+      Facter::Core::Execution.stubs(:exec).with("/sbin/ifconfig -a -e -i -j")
 
       Facter::Util::IP.exec_ifconfig(["-a","-e","-i","-j"])
     end

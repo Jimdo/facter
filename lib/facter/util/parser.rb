@@ -55,9 +55,7 @@ module Facter::Util::Parser
     def results
       parse_results
     rescue Exception => detail
-      Facter.warn("Failed to handle #{filename} as #{self.class} facts")
-      Facter.warn("detail: #{detail.class}: #{detail.message}")
-      Facter.debug(detail.backtrace.join("\n\t"))
+      Facter.log_exception(detail, "Failed to handle #{filename} as #{self.class} facts: #{detail.message}")
       nil
     end
 
@@ -68,6 +66,8 @@ module Facter::Util::Parser
 
   module KeyValuePairOutputFormat
     def self.parse(output)
+      return {} if output.nil?
+
       result = {}
       re = /^(.+?)=(.+)$/
       output.each_line do |line|
@@ -100,7 +100,7 @@ module Facter::Util::Parser
   end
 
   class JsonParser < Base
-    def results
+    def parse_results
       if Facter.json?
         JSON.load(content)
       else
@@ -116,8 +116,14 @@ module Facter::Util::Parser
   end
 
   class ScriptParser < Base
-    def results
-      KeyValuePairOutputFormat.parse Facter::Util::Resolution.exec(filename)
+    def parse_results
+      KeyValuePairOutputFormat.parse Facter::Core::Execution.exec(quote(filename))
+    end
+
+    private
+
+    def quote(filename)
+      filename.index(' ') ? "\"#{filename}\"" : filename
     end
   end
 
@@ -125,16 +131,16 @@ module Facter::Util::Parser
     if Facter::Util::Config.is_windows?
       extension_matches?(filename, %w{bat cmd com exe}) && File.file?(filename)
     else
-      File.executable?(filename) && File.file?(filename)
+      File.executable?(filename) && File.file?(filename) && ! extension_matches?(filename, %w{bat cmd com exe})
     end
   end
 
   # Executes and parses the key value output of Powershell scripts
   class PowershellParser < Base
     # Returns a hash of facts from powershell output
-    def results
+    def parse_results
       shell_command = "powershell -NoProfile -NonInteractive -NoLogo -ExecutionPolicy Bypass -File \"#{filename}\""
-      KeyValuePairOutputFormat.parse Facter::Util::Resolution.exec(shell_command)
+      KeyValuePairOutputFormat.parse Facter::Core::Execution.exec(shell_command)
     end
   end
 

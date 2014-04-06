@@ -5,7 +5,7 @@
 # Resolution:
 #   On RedHat derivatives, returns their '/etc/<variant>-release' file.
 #   On Debian, returns '/etc/debian_version'.
-#   On Ubuntu, parses '/etc/issue' for the release version.
+#   On Ubuntu, parses '/etc/lsb-release' for the release version.
 #   On Suse, derivatives, parses '/etc/SuSE-release' for a selection of version
 #   information.
 #   On Slackware, parses '/etc/slackware-version'.
@@ -61,8 +61,8 @@ end
 Facter.add(:operatingsystemrelease) do
   confine :operatingsystem => %w{Ubuntu}
   setcode do
-    if release = Facter::Util::FileRead.read('/etc/issue')
-      if match = release.match(/Ubuntu ((\d+.\d+)(\.(\d+))?)/)
+    if release = Facter::Util::FileRead.read('/etc/lsb-release')
+      if match = release.match(/DISTRIB_RELEASE=((\d+.\d+)(\.(\d+))?)/)
         # Return only the major and minor version numbers.  This behavior must
         # be preserved for compatibility reasons.
         match[2]
@@ -141,7 +141,7 @@ end
 Facter.add(:operatingsystemrelease) do
   confine :operatingsystem => %w{VMwareESX}
   setcode do
-    release = Facter::Util::Resolution.exec('vmware -v')
+    release = Facter::Core::Execution.exec('vmware -v')
     if match = /VMware ESX .*?(\d.*)/.match(release)
       match[1]
     end
@@ -181,10 +181,48 @@ Facter.add(:operatingsystemrelease) do
   setcode do
     if release = Facter::Util::FileRead.read('/etc/release')
       line = release.split("\n").first.chomp
+      # Solaris 10: Solaris 10 10/09 s10x_u8wos_08a X86
+      # Solaris 11 (old naming scheme): Oracle Solaris 11 11/11 X86
+      # Solaris 11 (new naming scheme): Oracle Solaris 11.1 SPARC
       if match = /\s+s(\d+)[sx]?(_u\d+)?.*(?:SPARC|X86)/.match(line)
         match.captures.join('')
+      elsif match = /Solaris ([0-9\.]+(?:\s*[0-9\.\/]+))\s*(?:SPARC|X86)/.match(line)
+        match.captures[0]
       end
     end
+  end
+end
+
+Facter.add(:operatingsystemrelease) do
+  confine :operatingsystem => :windows
+  setcode do
+    require 'facter/util/wmi'
+    result = nil
+    Facter::Util::WMI.execquery("SELECT version, producttype FROM Win32_OperatingSystem").each do |os|
+      result =
+        case os.version
+        when /^6\.2/
+          os.producttype == 1 ? "8" : "2012"
+        when /^6\.1/
+          os.producttype == 1 ? "7" : "2008 R2"
+        when /^6\.0/
+          os.producttype == 1 ? "Vista" : "2008"
+        when /^5\.2/
+          if os.producttype == 1
+            "XP"
+          else
+            begin
+              os.othertypedescription == "R2" ? "2003 R2" : "2003"
+            rescue NoMethodError
+              "2003"
+            end
+          end
+        else
+          Facter[:kernelrelease].value
+        end
+      break
+    end
+    result
   end
 end
 

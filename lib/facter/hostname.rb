@@ -11,10 +11,10 @@
 # Caveats:
 #
 
-Facter.add(:hostname, :ldapname => "cn") do
+Facter.add(:hostname) do
   setcode do
     hostname = nil
-    if name = Facter::Util::Resolution.exec('hostname')
+    if name = Facter::Core::Execution.execute('hostname')
       if name =~ /(.*?)\./
         hostname = $1
       else
@@ -27,7 +27,5 @@ end
 
 Facter.add(:hostname) do
   confine :kernel => :darwin, :kernelrelease => "R7"
-  setcode do
-    Facter::Util::Resolution.exec('/usr/sbin/scutil --get LocalHostName')
-  end
+  setcode '/usr/sbin/scutil --get LocalHostName'
 end
