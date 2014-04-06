@@ -6,7 +6,7 @@ Uploaders: Andrew Pollock <apollock@debian.org>, Nigel Kersten <nigel@explanator
 Build-Depends:
  debhelper (>= 8),
  ruby | ruby-interpreter,
-Standards-Version: 3.9.4
+Standards-Version: 3.9.5
 Vcs-Git: git://anonscm.debian.org/pkg-puppet/facter.git
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-puppet/facter.git
 Homepage: http://projects.puppetlabs.com/projects/facter
