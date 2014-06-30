@@ -1,8 +1,8 @@
-facter (2.1.0-1) UNRELEASED; urgency=medium
+facter (2.1.0-1) unstable; urgency=medium
 
   * Imported upstream release 2.1.0
 
- -- Stig Sandbeck Mathisen <ssm@debian.org>  Mon, 30 Jun 2014 16:43:53 +0200
+ -- Stig Sandbeck Mathisen <ssm@debian.org>  Mon, 30 Jun 2014 16:55:08 +0200
 
 facter (2.0.1-1) unstable; urgency=medium
 
