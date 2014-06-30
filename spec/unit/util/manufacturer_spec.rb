@@ -63,6 +63,17 @@ describe Facter::Manufacturer do
     Facter.value(:reldate).should == "12/01/2006"
   end
 
+  it "can parse smbios output that contains non-UTF8 characters" do
+    smbios_output = my_fixture_read("smartos_smbios")
+    Facter::Core::Execution.stubs(:exec).with('/usr/sbin/smbios 2>/dev/null').returns(smbios_output)
+    Facter.fact(:kernel).stubs(:value).returns("SunOS")
+
+    query = { 'BIOS information' => [ { 'Release Date:' => 'reldate' } ] }
+
+    Facter::Manufacturer.dmi_find_system_info(query)
+    Facter.value(:reldate).should == "06/11/2007"
+  end
+
   it "should not split on dmi keys containing the string Handle" do
     dmidecode_output = <<-eos
 Handle 0x1000, DMI type 16, 15 bytes
@@ -175,5 +186,38 @@ Handle 0x001F
     Facter.value(:manufacturer).should == "Phoenix Technologies LTD"
     Facter.value(:serialnumber).should == "56 4d 40 2b 4d 81 94 d6-e6 c5 56 a4 56 0c 9e 9f"
     Facter.value(:productname).should == "VMware Virtual Platform"
+  end
+
+  describe "using sysctl to look up manufacturer information" do
+    before do
+      Facter.fact(:kernel).stubs(:value).returns 'OpenBSD'
+    end
+
+    let(:mfg_keys) do
+      {
+        'hw.vendor'   => 'manufacturer',
+        'hw.product'  => 'productname',
+        'hw.serialno' => 'serialnumber'
+      }
+    end
+
+    it "creates a new fact for the each hash key" do
+      mfg_keys.values.each do |value|
+        Facter.expects(:add).with(value)
+      end
+      described_class.sysctl_find_system_info(mfg_keys)
+    end
+
+    it "uses sysctl to determine the value for that fact" do
+      mfg_keys.keys.each do |sysctl|
+        Facter::Util::POSIX.expects(:sysctl).with(sysctl).returns "sysctl #{sysctl}"
+      end
+
+      described_class.sysctl_find_system_info(mfg_keys)
+
+      mfg_keys.invert.each_pair do |factname, value|
+        expect(Facter.value(factname)).to eq "sysctl #{value}"
+      end
+    end
   end
 end

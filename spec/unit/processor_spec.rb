@@ -1,5 +1,6 @@
 #! /usr/bin/env ruby
 
+require 'facter/util/posix'
 require 'facter/util/processor'
 require 'spec_helper'
 require 'facter_spec/cpuinfo'
@@ -185,35 +186,42 @@ describe "Processor facts" do
 
     it "should be 2 on dual-processor Darwin box" do
       Facter.fact(:kernel).stubs(:value).returns("Darwin")
-      Facter::Core::Execution.stubs(:execute).with("sysctl -n hw.ncpu", anything).returns('2')
+      Facter::Util::POSIX.stubs(:sysctl).with("hw.ncpu").returns('2')
 
       Facter.fact(:processorcount).value.should == "2"
     end
 
     it "should be 2 on dual-processor OpenBSD box" do
       Facter.fact(:kernel).stubs(:value).returns("OpenBSD")
-      Facter::Core::Execution.stubs(:execute).with("sysctl -n hw.ncpu", anything).returns('2')
+      Facter::Util::POSIX.stubs(:sysctl).with("hw.ncpu").returns('2')
 
       Facter.fact(:processorcount).value.should == "2"
     end
 
+    it "should print the correct CPU Model on OpenBSD" do
+      Facter.fact(:kernel).stubs(:value).returns("OpenBSD")
+      Facter::Util::POSIX.stubs(:sysctl).with("hw.model").returns('SomeVendor CPU 4.2GHz')
+
+      Facter.fact(:processor).value.should == "SomeVendor CPU 4.2GHz"
+    end
+
     it "should be 2 on dual-processor FreeBSD box" do
       Facter.fact(:kernel).stubs(:value).returns("FreeBSD")
-      Facter::Core::Execution.stubs(:execute).with("sysctl -n hw.ncpu", anything).returns('2')
+      Facter::Util::POSIX.stubs(:sysctl).with("hw.ncpu").returns('2')
 
       Facter.fact(:processorcount).value.should == "2"
     end
 
     it "should print the correct CPU Model on FreeBSD" do
       Facter.fact(:kernel).stubs(:value).returns("FreeBSD")
-      Facter::Core::Execution.stubs(:execute).with("sysctl -n hw.model", anything).returns('SomeVendor CPU 3GHz')
+      Facter::Util::POSIX.stubs(:sysctl).with("hw.model").returns('SomeVendor CPU 3GHz')
 
       Facter.fact(:processor).value.should == "SomeVendor CPU 3GHz"
     end
 
     it "should be 2 on dual-processor DragonFly box" do
       Facter.fact(:kernel).stubs(:value).returns("DragonFly")
-      Facter::Core::Execution.stubs(:execute).with("sysctl -n hw.ncpu", anything).returns('2')
+      Facter::Util::POSIX.stubs(:sysctl).with("hw.ncpu").returns('2')
 
       Facter.fact(:processorcount).value.should == "2"
     end
@@ -234,7 +242,7 @@ describe "Processor facts" do
     let(:kstat_sparc) { @fixture_kstat_sparc }
     let(:kstat_x86_64) { @fixture_kstat_x86_64 }
 
-    %w{ 5.8 5.9 5.10 5.11 }.each do |release|
+    %w{ 5.5.1 5.6 5.7 }.each do |release|
       %w{ sparc x86_64 }.each do |arch|
         it "uses kstat on release #{release} (#{arch})" do
           Facter.stubs(:value).with(:kernelrelease).returns(release)
@@ -246,7 +254,7 @@ describe "Processor facts" do
       end
     end
 
-    %w{ 5.5.1 5.6 5.7 }.each do |release|
+    %w{ 5.8 5.9 5.10 5.11 }.each do |release|
       it "uses psrinfo on release #{release}" do
         Facter.stubs(:value).with(:kernelrelease).returns(release)
 
