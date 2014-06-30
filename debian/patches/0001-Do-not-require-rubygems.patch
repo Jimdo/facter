@@ -1,5 +1,5 @@
 From: Stig Sandbeck Mathisen <ssm@debian.org>
-Date: Sun, 6 Apr 2014 23:46:43 +0200
+Date: Mon, 30 Jun 2014 16:49:41 +0200
 Subject: Do not require rubygems
 
 ---
@@ -7,11 +7,12 @@ Subject: Do not require rubygems
  1 file changed, 11 deletions(-)
 
 diff --git a/bin/facter b/bin/facter
-index 0616157..a25fa03 100755
+index 7aec067..c8db6d3 100755
 --- a/bin/facter
 +++ b/bin/facter
-@@ -1,16 +1,5 @@
- #!/usr/bin/env ruby
+@@ -4,17 +4,6 @@
+ # This is primarily for 1.8.7 since 1.9.2+ doesn't put '.' on the load path
+ $LOAD_PATH.delete '.'
  
 -# Bundler and rubygems maintain a set of directories from which to
 -# load gems. If Bundler is loaded, let it determine what can be
