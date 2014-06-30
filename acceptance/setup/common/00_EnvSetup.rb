@@ -11,14 +11,17 @@ PACKAGES = {
   :redhat => [
     'git',
     'ruby',
+    'rubygem-json',
   ],
   :debian => [
     ['git', 'git-core'],
     'ruby',
+    'libjson-ruby',
   ],
   :solaris => [
     ['git', 'developer/versioning/git'],
     ['ruby', 'runtime/ruby-18'],
+    # there isn't a package for json, so it is installed later via gems
   ],
   :windows => [
     'git',
@@ -28,13 +31,17 @@ PACKAGES = {
 install_packages_on(hosts, PACKAGES, :check_if_exists => true)
 
 hosts.each do |host|
-  if host['platform'] =~ /windows/
+  case host['platform']
+  when /windows/
     step "#{host} Install ruby from git"
-    install_from_git(host, "/opt/puppet-git-repos", :name => 'puppet-win32-ruby', :path => 'git://github.com/puppetlabs/puppet-win32-ruby')
+    install_from_git(host, "/opt/puppet-git-repos", :name => 'puppet-win32-ruby', :path => 'git://github.com/puppetlabs/puppet-win32-ruby', :rev  => '1.9.3-x86')
     on host, 'cd /opt/puppet-git-repos/puppet-win32-ruby; cp -r ruby/* /'
     on host, 'cd /lib; icacls ruby /grant "Everyone:(OI)(CI)(RX)"'
     on host, 'cd /lib; icacls ruby /reset /T'
     on host, 'ruby --version'
     on host, 'cmd /c gem list'
+  when /solaris/
+    step "#{host} Install json from rubygems"
+    on host, 'gem install json'
   end
 end
