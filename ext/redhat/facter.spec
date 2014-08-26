@@ -7,8 +7,8 @@
 %endif
 
 # VERSION is subbed out during rake srpm process
-%global realversion 2.1.0
-%global rpmversion 2.1.0
+%global realversion 2.2.0
+%global rpmversion 2.2.0
 
 Summary:        Ruby module for collecting simple facts about a host operating system
 Name:           facter
@@ -32,7 +32,10 @@ Requires:       dmidecode
 Requires:       pciutils
 %endif
 Requires:       virt-what
-Requires:       ruby >= 1.8.7
+# In Fedora 19+ or RHEL 7+ net-tools is required for interface facts
+%if 0%{?fedora} >= 19 || 0%{?rhel} >= 7
+Requires:       net-tools
+%endif
 BuildRequires:  ruby >= 1.8.7
 
 # In Fedora 17+ or RHEL 7+ ruby-rdoc is called rubygem-rdoc
@@ -70,8 +73,8 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Tue Jun 24 2014 Puppet Labs Release <info@puppetlabs.com> -  1:2.1.0-1
-- Build for 2.1.0
+* Mon Aug 25 2014 Puppet Labs Release <info@puppetlabs.com> -  1:2.2.0-1
+- Build for 2.2.0
 
 * Mon Apr 01 2013 Matthaus Owens <matthaus@puppetlabs.com> - 1:1.7.0-0.1rc1
 - Add dependency on virt-what to facter for better virutalization detection
