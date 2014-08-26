@@ -1,3 +1,9 @@
+facter (1.6.9-2~bpo60+2.2) unstable; urgency=low
+
+  * New Jimdo release.
+
+ -- Mathias Lafeldt <mathias.lafeldt@gmail.com>  Tue, 26 Aug 2014 13:07:13 +0000
+
 facter (1.6.9-2) unstable; urgency=medium
 
   * Add patch from upstream (b050eb1) to ignore LSB noise
