@@ -12,17 +12,22 @@
 #
 
 Facter.add(:hostname, :ldapname => "cn") do
-  setcode do
-    hostname = nil
-    if name = Facter::Util::Resolution.exec('hostname')
-      if name =~ /(.*?)\./
-        hostname = $1
-      else
-        hostname = name
-      end
+    setcode do
+        require 'socket'
+        hostname = nil
+        name = Socket.gethostbyname(Socket.gethostname).first
+        if name
+            if name =~ /^([\w-]+)\.(.+)$/
+                hostname = $1
+                # the FQDN/Domain facts use this
+            else
+                hostname = name
+            end
+            hostname
+        else
+            nil
+        end
     end
-    hostname
-  end
 end
 
 Facter.add(:hostname) do
